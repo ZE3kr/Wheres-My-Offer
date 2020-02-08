@@ -8,7 +8,7 @@ You have to make a dictionary `/opt/admit`. This program will store the data her
 
 You can set up an IFTTT webhook trigger, or any webhook service, and then forward the message to app notification or phone call. Plus, you should also add `check.php` as a cron job to run the script periodically.
 
-ABSOLUTELY NO GUARANTEE. Use it at your own risk.
+ABSOLUTELY NO GUARANTEE. USE IT AT YOUR OWN RISK.
 
 Supported Universities:
 
@@ -22,3 +22,9 @@ Supported Universities:
 + CMU
 
 And more to come.
+
+Features:
+
++ Check current status (incomplete, complete, admitted, rejected, etc.).
++ Check missing materials.
++ And any update in the portal.
