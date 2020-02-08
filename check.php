@@ -89,5 +89,9 @@ function check_update($result, $slug) {
 		file_put_contents('/opt/admit/'.$slug, json_encode($result));
 		$result['data'] = urlencode($result['data']);
 		file_get_contents("https://maker.ifttt.com/trigger/admit/with/key/YOUR_KEY?value1={$slug}&value2={$result['data']}");
+		if (isset($result['admitted'])) {
+			// Special condition when admitted by a university.
+			// e.g. Trigger a phone call, or send a tweet.
+		}
 	}
 }
