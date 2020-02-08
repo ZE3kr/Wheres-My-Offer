@@ -16,5 +16,9 @@ Supported Universities:
 + UMich
 + UNC
 + USC
++ UBC
++ OSU
++ WISC
++ CMU
 
 And more to come.
