@@ -44,8 +44,18 @@ class OSU {
 				'cookie' => $this->cookie];
 		}
 		if ($data != ''){
-			return ['sha' => md5($data).md5($data2), 'data' => $data,
+			$return = ['sha' => md5($data).md5($data2), 'data' => $data,
 				'cookie' => $this->cookie];
+			if (strstr(strtolower($raw_data), 'waiting list')){
+				$return['waiting'] = true;
+			} else if(strstr(strtolower($raw_data), 'reject')) {
+				$return['reject'] = true;
+			} else if (!strstr(strtolower($raw_data), 'incomplete')
+					&& !strstr(strtolower($raw_data), 'missing')) {
+				$return['complete'] = true;
+			}
+			$return['submitted'] = true;
+			return $return;
 		}
 		return NULL;
 	}

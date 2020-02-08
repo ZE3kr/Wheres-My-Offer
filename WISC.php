@@ -30,7 +30,7 @@ class WISC {
 		$data = strstr($data, 'SCC_DRV_TASK_FL_SCC_TODO_SEL_PB$0\');"');
 		$data = strstr(substr(strstr($data, '>'), 1), '</a>', true);
 
-		curl_setopt($curl, CURLOPT_URL,'https://madison.sis.wisc.edu/psc/sissso/EMPLOYEE/SA/c/SAD_APPLICANT_FL.SAD_APPLICANT_FL.GBL');
+		curl_setopt($curl, CURLOPT_URL,'https://madison.sis.wisc.edu/psc/sissso/EMPLOYEE/SA/c/SAD_APPLICANT_FL.SAD_APPLICANT_FL.GBL?Page=SAD_APPL_STATUS_FL&Action=L');
 		$data2 = curl_exec($curl);
 		$raw_data2 = $data2;
 		$data2 = strstr($data2, 'id=\'DERIVED_SAD_FL_SAD_ACAD_STATUS\'');
@@ -42,9 +42,19 @@ class WISC {
 			return ['sha' => md5($data).md5($data2), 'data' => '恭喜！确认录取。Congrats!', 'admitted' => true,
 				'cookie' => $this->cookie];
 		}
-		if ($data != ''){
-			return ['sha' => md5($data).md5($data2), 'data' => $data2.'. '.$data,
+		if ($data2 != ''){
+			$return = ['sha' => md5($data).md5($data2), 'data' => $data2.'. '.$data,
 				'cookie' => $this->cookie];
+			if (strstr(strtolower($raw_data).strtolower($raw_data2), 'waiting list')){
+				$return['waiting'] = true;
+			} else if(strstr(strtolower($raw_data).strtolower($raw_data2), 'reject')) {
+				$return['reject'] = true;
+			} else if (!strstr(strtolower($raw_data), 'incomplete')
+				&& !strstr(strtolower($raw_data), 'missing')) {
+				$return['complete'] = true;
+			}
+			$return['submitted'] = true;
+			return $return;
 		}
 		return NULL;
 	}

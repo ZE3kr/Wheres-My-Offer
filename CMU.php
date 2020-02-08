@@ -36,8 +36,17 @@ class CMU {
 				'cookie' => $this->cookie];
 		}
 		if ($data != ''){
-			return ['sha' => md5($ori_data), 'data' => $data,
+			$return = ['sha' => md5($ori_data), 'data' => $data,
 				'cookie' => $this->cookie];
+			if (strstr(strtolower($raw_data), 'waiting list')){
+				$return['waiting'] = true;
+			} else if(strstr(strtolower($raw_data), 'reject')) {
+				$return['reject'] = true;
+			} else if (!strstr(strtolower($raw_data), 'incomplete')) {
+				$return['complete'] = true;
+			}
+			$return['submitted'] = true;
+			return $return;
 		}
 		return NULL;
 	}

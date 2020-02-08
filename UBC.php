@@ -26,18 +26,28 @@ class UBC {
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
 		$raw_data = $data;
+		$ori_data = strstr($data, '<td class="pageTitle">Application Status</td>');
 		$data = strstr($data, '<td class="displayBoxFieldAlignTop">Status:</td>');
 		$data = strstr($data, '<p>');
 		$data = strstr(substr($data, 3), '</p>', true);
 		curl_close($curl);
 
 		if(strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($raw_data), 'data' => '恭喜！确认录取。Congrats!', 'admitted' => true,
+			return ['sha' => md5($ori_data), 'data' => '恭喜！确认录取。Congrats!', 'admitted' => true,
 				'cookie' => $this->cookie];
 		}
 		if ($data != ''){
-			return ['sha' => md5($raw_data), 'data' => $data,
+			$return = ['sha' => md5($ori_data), 'data' => $data,
 				'cookie' => $this->cookie];
+			if (strstr(strtolower($raw_data), 'waiting list')){
+				$return['waiting'] = true;
+			} else if(strstr(strtolower($raw_data), 'reject')) {
+				$return['reject'] = true;
+			} else if(!strstr($raw_data, 'The following information is required before an evaluation can be completed')){
+				$return['complete'] = true;
+			}
+			$return['submitted'] = true;
+			return $return;
 		}
 		return NULL;
 	}

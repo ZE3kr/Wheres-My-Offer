@@ -44,8 +44,9 @@ $osu = new OSU();
 $osu->setup([
 	'NSC_NX-DTPTV-TJT-TTM-WT' => 'ffffffffffffffffffffffffffffffffffffffffffff',
 	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-	=> '_ffffffffffffffffffffffffffffffff',
-	'PS_TOKEN' => 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+			=> '_ffffffffffffffffffffffffffffffff',
+	'PS_TOKEN'
+			=> 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
 	'hcwebprd02-10000-PORTAL-PSJSESSIONID' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 ]);
 $osu->login();
@@ -56,7 +57,7 @@ $cmu = new CMU();
 $cmu->setup([
 	'JSESSIONID' => 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF-xx.xxxx',
 	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-	=> '_ffffffffffffffffffffffffffffffff'
+			=> '_ffffffffffffffffffffffffffffffff'
 ]);
 $cmu->login();
 echo "\n\n\nCMU: \n";
@@ -65,9 +66,9 @@ check_update( $cmu->get_status(), 'CMU');
 $wisc = new WISC();
 $wisc->setup([
 	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-	=> '_ffffffffffffffffffffffffffffffff',
+			=> '_ffffffffffffffffffffffffffffffff',
 	'badlands.doit.wisc.edu-0000-PORTAL-PSJSESSIONID'
-	=> 'xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxx!-00000000',
+			=> 'xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxx!-00000000',
 	'L4-LB.SISPRD-COOKIE' => 'ffffffffffffffffffffffffffffffffffffffffffff'
 ]);
 $wisc->login();
