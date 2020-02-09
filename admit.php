@@ -55,15 +55,15 @@ $translate = [
 		<?php foreach ($admitted_status as $univ => $status) { ?>
 			<div class="list-group-item list-group-item-action <?php
 			if(isset($status['admitted'])){
-				echo 'bg-success text-white';
+				echo 'list-group-item-success';
 			} else if (isset($status['reject'])) {
-				echo 'bg-danger text-white';
+				echo 'list-group-item-danger';
 			} else if (isset($status['waiting'])) {
-				echo 'bg-info text-white';
+				echo 'list-group-item-info';
 			} else if (isset($status['complete'])) {
-				// echo 'bg-light text-dark';
+				echo 'list-group-item-light';
 			} else if (isset($status['submitted'])) {
-				echo 'bg-warning text-dark';
+				echo 'list-group-item-dark';
 			}
 			?>">
 				<div class="d-flex w-100 justify-content-between">
