@@ -99,6 +99,16 @@ $translate = [
 						?></small>
 				</div>
 				<p class="mb-1"><?php echo $status['data'] ?? 'N/A'; ?></p>
+				<?php if(isset($status['email'])) {
+					echo '<ul class="mb-1">';
+					krsort($status['email']);
+					$i = 0;
+					foreach ($status['email'] as $time => $email){ ?>
+						<li><?php echo '<strong>'.date('m-d H:i', $time).'</strong>: '.$email; ?></li>
+					<?php if (++$i == 3) break;
+					}
+					echo '</ul>';
+				} ?>
 				<small><?php
 					if(isset($status['admitted'])){
 						echo 'Admitted';

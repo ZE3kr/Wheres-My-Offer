@@ -36,7 +36,7 @@ if (strstr(strtolower($data.$_POST['body']), 'congrat')){
 	$prev['reject'] = true;
 }
 
-$prev['data'] = 'Email: '.$data;
+$prev['email'][time()] = $data;
 $prev['updated_time'] = $prev['time'] = time();
 
 $data = urlencode($data);

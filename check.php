@@ -111,6 +111,9 @@ function check_update($result, $slug) {
 			// Special condition when admitted/rejected by a university.
 			// e.g. Trigger a phone call, or send a tweet.
 		}
+		if(isset($prev['email'])){
+			$result['email'] = $prev['email'];
+		}
 		$result['time'] = $result['updated_time'] = time();
 		file_put_contents('/opt/admit/'.$slug, json_encode($result));
 	} else {
