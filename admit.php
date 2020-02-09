@@ -104,6 +104,7 @@ $translate = [
 					krsort($status['email']);
 					$i = 0;
 					foreach ($status['email'] as $time => $email){
+						$email = str_replace(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 'X', $email);
 						if($time == $status['time']){ ?>
 							<li><?php echo $email; ?></li>
 						<?php } else { ?>
