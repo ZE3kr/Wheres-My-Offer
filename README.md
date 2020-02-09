@@ -26,7 +26,7 @@ And more to come.
 Features:
 
 + Check current status (incomplete, complete, admitted, rejected, etc.).
-+ Check missing materials.
-+ And any update in the portal.
 + Public `admit.php` to let everyone know your status.
 + Redirect emails to `admit_webhook.php` to update from emails.
++ Check missing materials.
++ And any update in the portal.
