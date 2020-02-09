@@ -1,4 +1,4 @@
-# Univ-Admit
+# Where’s My Offer?
 
 University Admission Portal Checker
 
