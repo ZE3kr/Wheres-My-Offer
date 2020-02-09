@@ -26,7 +26,7 @@ $translate = [
 	'Cornell' => '康奈尔大学',
 	'JHU' => '霍普金斯大学',
 	'NYU' => '纽约大学',
-	'WUSTL' => '圣路易斯华盛顿大学',
+	'WUSTL' => '圣路易斯',
 ];
 ?><!DOCTYPE html>
 <html lang="zh-CN">
@@ -50,7 +50,7 @@ $translate = [
 <main role="main" class="container mt-5">
 	<h1>我的 Offer 呢?</h1>
 	<h2 class="mt-4">实时录取情况</h2>
-	<p class="text-muted">本程序每分钟从 Portal 获取最新状态。录取状况使用关键词匹配，判断可能有所偏差。</p>
+	<small class="text-muted">本程序每分钟从 Portal 获取最新状态。录取状况使用关键词匹配，判断可能有所偏差。</small>
 	<div class="list-group mb-3">
 		<?php foreach ($admitted_status as $univ => $status) { ?>
 			<div class="list-group-item list-group-item-action <?php
