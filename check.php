@@ -84,15 +84,40 @@ function check_update($result, $slug) {
 		return;
 	}
 	$result['data'] = trim($result['data']);
-	var_dump( $result );
+	$trim = $result;
+	unset($trim['cookie']);
+	var_dump( $trim );
+	if(!$prev){
+		$result['updated_time'] = $result['time'] = time();
+		file_put_contents('/opt/admit/'.$slug, json_encode($result));
+		return;
+	}
+	if(isset($prev['admitted']) || isset($prev['reject'])) {
+		$result['updated_time'] = time();
+		file_put_contents('/opt/admit/'.$slug, json_encode($result));
+		return;
+	}
 
 	if($result['sha'] != $prev['sha']) {
-		file_put_contents('/opt/admit/'.$slug, json_encode($result));
-		$result['data'] = urlencode($result['data']);
+		if(isset($result['admitted'])) {
+			$append_data = '录取！'.$result['data'];
+		}
+		if(isset($result['reject'])) {
+			$append_data = '拒绝！'.$result['data'];
+		}
+		$data = urlencode($append_data);
 		file_get_contents("https://maker.ifttt.com/trigger/admit/with/key/YOUR_KEY?value1={$slug}&value2={$result['data']}");
-		if (isset($result['admitted'])) {
-			// Special condition when admitted by a university.
+		if (isset($result['admitted']) || isset($result['reject'])){
+			// Special condition when admitted/rejected by a university.
 			// e.g. Trigger a phone call, or send a tweet.
 		}
+		$result['time'] = $result['updated_time'] = time();
+		file_put_contents('/opt/admit/'.$slug, json_encode($result));
+	} else {
+		$prev['updated_time'] = time();
+		if ( isset($result['cookie']) ){
+			$prev['cookie'] = $result['cookie'];
+		}
+		file_put_contents('/opt/admit/'.$slug, json_encode($prev));
 	}
 }

@@ -47,20 +47,19 @@ class UNC {
 		$raw_data = $data;
 		$data = strstr($data, '<p>Hello ');
 		$data = strstr($data, '!</p><p>');
-		$ori_data = $data;
+		$ori_data = strstr($data, 'Logout</a>', true);
 		$data = strstr(substr($data, 8), '</p>', true);
 
 		curl_close($curl);
-		if(strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($ori_data), 'data' => '恭喜！确认录取。Congrats!', 'admitted' => true,
-				'cookie' => $this->cookie];
-		}
+
 		if ($data != ''){
 			$return = ['sha' => md5($ori_data), 'data' => $data,
 				'cookie' => $this->cookie];
-			if (strstr(strtolower($raw_data), 'waiting list')){
+			if(strstr(strtolower($raw_data), 'congrat')) {
+				$return['admitted'] = true;
+			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject')) {
+			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
 				$return['reject'] = true;
 			} else if (!strstr(strtolower($raw_data), 'incomplete')
 				&& !strstr(strtolower($raw_data), 'missing')) {
@@ -68,6 +67,9 @@ class UNC {
 			}
 			$return['submitted'] = true;
 			return $return;
+		} else if (strstr(strtolower($raw_data), 'congrat')) {
+			return ['sha' => md5($ori_data), 'data' => $data,
+				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
 	}

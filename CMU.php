@@ -31,22 +31,23 @@ class CMU {
 		$data = strstr(substr($data, 38), '</h3>', true);
 		curl_close($curl);
 
-		if(strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($ori_data), 'data' => '恭喜！确认录取。Congrats!', 'admitted' => true,
-				'cookie' => $this->cookie];
-		}
 		if ($data != ''){
 			$return = ['sha' => md5($ori_data), 'data' => $data,
 				'cookie' => $this->cookie];
-			if (strstr(strtolower($raw_data), 'waiting list')){
+			if(strstr(strtolower($raw_data), 'congrat')) {
+				$return['admitted'] = true;
+			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject')) {
+			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
 				$return['reject'] = true;
 			} else if (!strstr(strtolower($raw_data), 'incomplete')) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
 			return $return;
+		} else if (strstr(strtolower($raw_data), 'congrat')) {
+			return ['sha' => md5($ori_data), 'data' => $data,
+				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
 	}
