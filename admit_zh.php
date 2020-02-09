@@ -103,9 +103,14 @@ $translate = [
 					echo '<ul class="mb-1">';
 					krsort($status['email']);
 					$i = 0;
-					foreach ($status['email'] as $time => $email){ ?>
+					foreach ($status['email'] as $time => $email){
+						if($time == $status['time']){ ?>
+							<li><?php echo $email; ?></li>
+						<?php } else { ?>
 						<li><?php echo '<strong>'.date('m-d H:i', $time).'</strong>: '.$email; ?></li>
-					<?php if (++$i == 3) break;
+					<?php
+						}
+						if (++$i == 3) break;
 					}
 					echo '</ul>';
 				} ?>
