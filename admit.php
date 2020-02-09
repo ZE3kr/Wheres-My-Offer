@@ -49,9 +49,9 @@ $translate = [
 <body>
 <main role="main" class="container mt-5">
 	<h1>我的 Offer 呢?</h1>
-	<h2 class="mt-2">实时录取情况</h2>
-	<p class="text-muted">所列时间为状态最后修改时间，本程序每分钟从 Portal获取最新状态。录取状况使用关键词匹配，判断可能有所偏差。</p>
-	<div class="list-group mb-5">
+	<h2 class="mt-4">实时录取情况</h2>
+	<p class="text-muted">所列时间为状态最后修改时间，本程序每分钟从 Portal，每小时从邮箱获取最新状态。录取状况使用关键词匹配，判断可能有所偏差。</p>
+	<div class="list-group mb-3">
 		<?php foreach ($admitted_status as $univ => $status) { ?>
 			<div class="list-group-item list-group-item-action <?php
 			if(isset($status['admitted'])){
