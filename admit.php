@@ -84,7 +84,7 @@ $translate = [
 						} else if($status['time'] + 43200 > time()){
 							echo ' at <span class="badge badge-pill badge-info">'.date('m-d H:i', $status['time']).'</span>';
 						} else {
-							echo ' at '.date('m-d H:i', $status['time']);;
+							echo ': <strong>'.date('m-d H:i', $status['time']).'</strong>';
 						}
 						?><br />Checked<?php
 						if($status['updated_time'] + 43200 < time()){
