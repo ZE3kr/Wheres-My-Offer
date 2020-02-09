@@ -72,10 +72,10 @@ $translate = [
 						if($status['time'] + 3600 > time()){
 							echo ' <span class="badge badge-pill badge-success">';
 							$ago = time() - $status['time'];
-							if($ago < 120 ){
+							if($ago < 90 ){
 								echo 'in 1 minute';
 							} else {
-								echo number_format($ago/60). ' minutes ago';
+								echo floor($ago/60). ' minutes ago';
 							}
 							echo '</span>';
 						} else if($status['time'] + 43200 > time()){
@@ -90,10 +90,10 @@ $translate = [
 							echo ' at <span class="badge badge-pill badge-info">'.date('m-d H:i', $status['updated_time']).'</span>';
 						} else {
 							$ago = time() - $status['updated_time'];
-							if($ago < 120 ){
+							if($ago < 90 ){
 								echo ' in 1 minute';
 							} else {
-								echo ' '.number_format($ago/60). ' minutes ago';
+								echo ' '.floor($ago/60). ' minutes ago';
 							}
 						}
 						?></small>
