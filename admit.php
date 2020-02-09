@@ -61,9 +61,9 @@ $translate = [
 			} else if (isset($status['waiting'])) {
 				echo 'list-group-item-info';
 			} else if (isset($status['complete'])) {
-				echo 'list-group-item-light';
+				echo 'list-group-item-primary';
 			} else if (isset($status['submitted'])) {
-				echo 'list-group-item-dark';
+				echo 'list-group-item-warning';
 			}
 			?>">
 				<div class="d-flex w-100 justify-content-between">
@@ -117,7 +117,7 @@ $translate = [
 			</div>
 		<?php } ?>
 		<?php foreach ($translate as $univ => $status) { ?>
-			<div class="list-group-item list-group-item-action bg-dark text-white">
+			<div class="list-group-item list-group-item-action list-group-item-light">
 				<div class="d-flex w-100 justify-content-between">
 					<h5 class="mb-1"><?php echo $univ.'<small> '.$status.'</small>'; ?></h5>
 				</div>
