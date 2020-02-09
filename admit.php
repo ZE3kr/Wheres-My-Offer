@@ -51,7 +51,7 @@ $translate = [
 	<h1>Where’s My Offer?</h1>
 	<h2 class="mt-4">Real time status</h2>
 	<small class="text-muted">This program retrieves the status from Portals every minute. Admission status is identified by keywords, which might lead to misjudgment.</small>
-	<div class="list-group mb-3">
+	<div class="list-group my-3">
 		<?php foreach ($admitted_status as $univ => $status) { ?>
 			<div class="list-group-item list-group-item-action <?php
 			if(isset($status['admitted'])){
