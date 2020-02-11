@@ -55,8 +55,7 @@ class WISC {
 				$return['waiting'] = true;
 			} else if(strstr(strtolower($raw_data.$raw_data2), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
 				$return['reject'] = true;
-			} else if (!strstr(strtolower($raw_data), 'incomplete')
-				&& !strstr(strtolower($raw_data), 'missing')) {
+			} else if (!$data) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;

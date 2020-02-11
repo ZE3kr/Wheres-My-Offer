@@ -81,7 +81,7 @@ class UBC {
 				$return['waiting'] = true;
 			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
 				$return['reject'] = true;
-			} else if(!strstr($raw_data, 'The following information is required before an evaluation can be completed')){
+			} else if(!$missing){
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;

@@ -90,8 +90,7 @@ class USC {
 				$return['waiting'] = true;
 			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
 				$return['reject'] = true;
-			} else if (!strstr(strtolower($raw_data), 'incomplete')
-				&& !strstr(strtolower($raw_data), 'missing')) {
+			} else if (!$waiting) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
