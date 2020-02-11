@@ -36,7 +36,7 @@ class WISC {
 			$i++;
 			$data = strstr($data, 'SCC_DRV_TASK_FL_SCC_TODO_SEL_PB$'.$i.'\');"');
 		}
-		$data = trim(substr($append, 0, -4));
+		$data = trim(substr($append, 0, -2));
 
 		curl_setopt($curl, CURLOPT_URL,'https://madison.sis.wisc.edu/psc/sissso/EMPLOYEE/SA/c/SAD_APPLICANT_FL.SAD_APPLICANT_FL.GBL?Page=SAD_APPL_STATUS_FL&Action=L');
 		$data2 = curl_exec($curl);
