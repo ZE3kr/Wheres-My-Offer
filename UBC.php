@@ -29,11 +29,51 @@ class UBC {
 		$ori_data = strstr($data, '<td class="pageTitle">Application Status</td>');
 		$data = strstr($data, '<td class="displayBoxFieldAlignTop">Status:</td>');
 		$data = strstr($data, '<p>');
+		
+		$missing = strstr($data, 'The following information is required before an evaluation can be completed');
+		$missing = strstr($missing, '<ul>');
+		$missing = strstr(substr($missing, 4), '</ul>', true);
+		
+		$missing = strstr($missing, '<li>');
+		$missing_list = [];
+		while($missing != ''){
+			$missing = substr($missing, 4);
+			$append = trim(strstr($missing, '</li>', true));
+			$missing_list[$append] = true;
+			$missing = strstr($missing, '<li>');
+		}
+		foreach($missing_list as $key => $_){
+			$missing .= $key.'. ';
+		}
+		if($missing){
+			substr($missing, 0, -2);
+		}
+		
+		$received = strstr($data, 'The following materials have been received by the Admissions Office:');
+		$received = strstr($received, '<ul>');
+		$received = strstr(substr($received, 4), '</ul>', true);
+		
+		$received = strstr($received, '<li>');
+		$received_list = [];
+		while($received != ''){
+			$received = substr($received, 4);
+			$append = trim(strstr($received, '</li>', true));
+			$received_list[$append] = true;
+			$received = strstr($received, '<li>');
+		}
+		foreach($received_list as $key => $_){
+			$received .= $key.'. ';
+		}
+		if($received){
+			substr($received, 0, -2);
+		}
+		
 		$data = strstr(substr($data, 3), '</p>', true);
+
 		curl_close($curl);
 
-		if ($data != ''){
-			$return = ['sha' => md5($ori_data), 'data' => $data,
+		if (trim($data) != ''){
+			$return = ['sha' => md5($ori_data), 'data' => trim($data).' '.trim($missing),
 				'cookie' => $this->cookie];
 			if(strstr(strtolower($raw_data), 'congrat')) {
 				$return['admitted'] = true;
@@ -45,6 +85,15 @@ class UBC {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
+
+			if($missing){
+				$missing = ' <span class="alert-danger">'.trim($missing).'</span>';
+			}
+			if($received){
+				$received = ' <span class="alert-success small">'.trim($received).'</span>';
+			}
+			$return['html'] = trim($data).$missing.$received;
+
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {
 			return ['sha' => md5($ori_data), 'data' => $data,

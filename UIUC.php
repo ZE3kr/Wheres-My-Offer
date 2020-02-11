@@ -57,8 +57,8 @@ class UIUC {
 		$data = substr(strstr($data, '</p>', true), 25);
 		curl_close($curl);
 
-		if ($data != ''){
-			$return = ['sha' => md5($ori_data), 'data' => $data,
+		if (trim($data) != ''){
+			$return = ['sha' => md5($ori_data), 'data' => trim($data),
 				'cookie' => $this->cookie];
 			if(strstr(strtolower($raw_data), 'congrat')) {
 				$return['admitted'] = true;

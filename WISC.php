@@ -27,8 +27,16 @@ class WISC {
 		}
 		$raw_data = $data;
 		$data = strstr($data, '<span class=\'ps-text\' id=\'PANEL_TITLElbl\'>To Do List</span>');
-		$data = strstr($data, 'SCC_DRV_TASK_FL_SCC_TODO_SEL_PB$0\');"');
-		$data = strstr(substr(strstr($data, '>'), 1), '</a>', true);
+
+		$i = 0;
+		$append = '';
+		$data = strstr($data, 'SCC_DRV_TASK_FL_SCC_TODO_SEL_PB$'.$i.'\');"');
+		while($data != ''){
+			$append .= strstr(substr(strstr($data, '>'), 1), '</a>', true).'. ';
+			$i++;
+			$data = strstr($data, 'SCC_DRV_TASK_FL_SCC_TODO_SEL_PB$'.$i.'\');"');
+		}
+		$data = trim(substr($append, 0, -4));
 
 		curl_setopt($curl, CURLOPT_URL,'https://madison.sis.wisc.edu/psc/sissso/EMPLOYEE/SA/c/SAD_APPLICANT_FL.SAD_APPLICANT_FL.GBL?Page=SAD_APPL_STATUS_FL&Action=L');
 		$data2 = curl_exec($curl);
@@ -38,9 +46,9 @@ class WISC {
 
 		curl_close($curl);
 
-		if ($data2 != ''){
-			$return = ['sha' => md5($data).md5($data2), 'data' => $data2.'. '.$data,
-				'cookie' => $this->cookie];
+		if (trim($data2) != ''){
+			$return = ['sha' => md5($data).md5($data2), 'data' => trim($data2).'. '.trim($data),
+				'cookie' => $this->cookie, 'html' => trim($data2).'. <span class="alert-danger">'.trim($data).'</span>'];
 			if(strstr(strtolower($raw_data.$raw_data2), 'congrat')) {
 				$return['accept'] = true;
 			} else if (strstr(strtolower($raw_data.$raw_data2), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){

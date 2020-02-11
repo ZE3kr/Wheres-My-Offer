@@ -26,14 +26,33 @@ class CMU {
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
 		$raw_data = $data;
+		$data2 = strstr($data,'<!-- Received Documents -->');
+		$data2 = strstr($data2, '<!-- Sent Documents -->', true);
 		$data = strstr($data, '<h3 class="page-title display-inline">Welcome, ');
 		$ori_data = $data;
-		$data = strstr(substr($data, 38), '</h3>', true);
+		$data = substr($data, 38);
+		$data = strstr($data, '</h3>', true);
 		curl_close($curl);
 
-		if ($data != ''){
-			$return = ['sha' => md5($ori_data), 'data' => $data,
-				'cookie' => $this->cookie];
+		$list = [];
+		$data2 = strstr($data2, 'data-title="DOCUMENT"');
+		while($data2 != ''){
+			$data2 = substr(strstr($data2, '>'), 1);
+			$append = trim(strstr($data2, '</td>', true));
+			$list[$append] = true;
+			$data2 = strstr($data2, 'data-title="DOCUMENT"');
+		}
+
+		foreach($list as $key => $_) {
+			$data2 .= $key.'. ';
+		}
+		if($data2) {
+			$data2 = substr($data2, 0, -2);
+		}
+
+		if (trim($data) != ''){
+			$return = ['sha' => md5($ori_data), 'data' => trim($data).'. '.trim($data2),
+				'cookie' => $this->cookie, 'html' => trim($data).'. <span class="alert-success small">'.trim($data2).'</span>'];
 			if(strstr(strtolower($raw_data), 'congrat')) {
 				$return['admitted'] = true;
 			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){

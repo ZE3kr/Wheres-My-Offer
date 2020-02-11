@@ -47,14 +47,42 @@ class USC {
 		$raw_data = $data;
 		$data = strstr($data, 'Logout</a></li>');
 		$data = substr($data, 15);
-		$ori_data = $data;
+		$ori_data = strstr($data, '<b>Withdraw Your Application</b>', true);
+		$ori_data = preg_replace('/[0-9a-f-]{36}/', '', $ori_data);
 		$data = strstr($data, '<h3>Application Checklist</h3><v><html><head><title></title></head><body>');
 		$data = strstr(substr($data, 73), '&#xA0;', true);
+		
+		$data2 = $ori_data;
+		$received = '';
+		$waiting = '';
+		$data2 = strstr($data2, 'Status: ');
+		while($data2 != ''){
+			$chk = strtolower(strstr($data2, '"', true));
+			
+			$data2 = substr(strstr($data2, '</td>'), 5);
+			$data2 = substr(strstr($data2, '</td>'), 5);
+			
+			$data2 = substr(strstr($data2, '>'), 1);
+			$append = strstr($data2, '<', true);
+			
+			if(strstr($chk, 'received') || strstr($chk, 'completed')){
+				$received .= $append.'. ';
+			} else {
+				$waiting .= $append.'. ';
+			}
+			$data2 = strstr($data2, 'Status: ');
+		}
+		if($waiting){
+			$waiting = substr($waiting, 0, -2);
+		}
+		if($received){
+			$received = substr($received, 0, -2);
+		}
 
 		curl_close($curl);
 
-		if ($data != '') {
-			$return = ['sha' => md5($ori_data), 'data' => $data,
+		if (trim($data.$waiting) != '') {
+			$return = ['sha' => md5($ori_data), 'data' => trim($data.$waiting),
 				'cookie' => $this->cookie];
 			if(strstr(strtolower($raw_data), 'congrat')) {
 				$return['admitted'] = true;
@@ -67,6 +95,15 @@ class USC {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
+			
+			if($waiting){
+				$waiting = ' <span class="alert-danger">'.trim($waiting).'</span>';
+			}
+			if($received){
+				$received = ' <span class="alert-success small">'.trim($received).'</span>';
+			}
+			$return['html'] = trim($data).$waiting.$received;
+			
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {
 			return ['sha' => md5($ori_data), 'data' => $data,

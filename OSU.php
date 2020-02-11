@@ -37,11 +37,23 @@ class OSU {
 		$data2 = strstr($data2, 'id=\'win0divSRVCIND_TODOSGP$0\'');
 		$data2 = strstr($data2, '>');
 		$data2 = strstr(substr($data2, 1), '</table>', true);
+		$ori_data2 = $data2;
+		
+		$i = 0;
+		$append = '';
+		$data2 = strstr($data2, 'id=\'SRVC_LINK$'.$i.'\'');
+		while($data2 != ''){
+			$append .= strstr(substr(strstr($data2, '>'), 1), '</a>', true).'. ';
+			$i++;
+			$data2 = strstr($data2, 'id=\'SRVC_LINK$'.$i.'\'');
+		}
+		$data2 = trim(substr($append, 0, -2));
+
 		curl_close($curl);
 
-		if ($data != ''){
-			$return = ['sha' => md5($data).md5($data2), 'data' => $data,
-				'cookie' => $this->cookie];
+		if (trim($data) != ''){
+			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim($data).'. '.trim($data2),
+				'cookie' => $this->cookie, 'html' => trim($data).'. <span class="alert-danger">'.trim($data2).'</span>'];
 			if(strstr(strtolower($raw_data), 'congrat')) {
 				$return['admitted'] = true;
 			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
@@ -55,7 +67,7 @@ class OSU {
 			$return['submitted'] = true;
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($data).md5($data2), 'data' => $data,
+			return ['sha' => md5($data).md5($ori_data2), 'data' => $data,
 				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
