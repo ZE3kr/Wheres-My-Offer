@@ -94,7 +94,7 @@ class UIUC {
 		}
 
 		$ad = strstr(strtolower($raw_data), 'congrat') || strstr(strtolower($raw_data), 're an illini');
-		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
 		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
 
 		if ($ad || $wl || $rej || trim($data) != ''){

@@ -55,7 +55,7 @@ class CMU {
 		}
 
 		$ad = strstr(strtolower($raw_data), 'congrat');
-		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
 		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
 		$cmplt = !strstr(strtolower($raw_data), 'incomplete') || !strstr(strtolower($raw_data), 'missing');
 

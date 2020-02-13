@@ -47,7 +47,7 @@ class WISC {
 		curl_close($curl);
 
 		$ad = strstr(strtolower($raw_data.$raw_data2), 'congrat');
-		$wl = strstr(strtolower($raw_data.$raw_data2), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$wl = strstr(strtolower($raw_data.$raw_data2), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
 		$rej = strstr(strtolower($raw_data.$raw_data2), 'reject') || strstr(strtolower($raw_data), 'sorry');
 
 		if ($ad || $wl || $rej || trim($data2) != ''){
