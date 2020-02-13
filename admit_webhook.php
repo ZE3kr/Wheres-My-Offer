@@ -35,12 +35,18 @@ if(!$prev){
 	exit();
 }
 
+$appended_data = $data;
+
 if (strstr(strtolower($data.$_POST['body']), 'congrat')){
 	$prev['admitted'] = true;
+	$appended_data = '录取！'.$data;
 } else if (strstr(strtolower($data.$_POST['body']), 'waiting list') || strstr(strtolower($data.$_POST['body']), 'wait list')){
 	$prev['waiting'] = true;
 } else if(strstr(strtolower($data.$_POST['body']), 'reject') || strstr(strtolower($data.$_POST['body']), 'sorry')) {
 	$prev['reject'] = true;
+	$appended_data = '拒绝！'.$data;
+} else if(strstr(strtolower($data), 'auto')) {
+	exit();
 }
 
 if( isset($_POST['time']) ){
@@ -54,6 +60,6 @@ if($prev['time'] < $time) {
 }
 $prev['updated_time'] = time();
 
-$data = urlencode($data);
+$appended_data = urlencode($appended_data);
 
 file_put_contents('/opt/admit/'.$from, json_encode($prev));
