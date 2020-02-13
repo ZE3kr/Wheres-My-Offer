@@ -10,12 +10,18 @@ $from = $_POST['from'];
 
 if(strstr($from, '@')){
 	$from = explode('.', substr(strstr($from, '@'), 1));
-	$from = strtoupper($from[count($from)-2]);
+	if($from[count($from)-2] == 'edu'){
+		$from = strtoupper($from[count($from)-3]);
+	} else {
+		$from = strtoupper($from[count($from)-2]);
+	}
 }
 
 $translate = [
 	'UMICH' => 'UMich',
 	'CORNELL' => 'Cornell',
+	'ILLINOIS' => 'UIUC',
+	'PURDUE' => 'Purdue',
 ];
 
 if(isset($translate[$from])) {
@@ -23,6 +29,7 @@ if(isset($translate[$from])) {
 }
 
 $prev = file_get_contents('/opt/admit/'.$from);
+$prev = json_decode($prev, true);
 
 if(!$prev){
 	exit();
