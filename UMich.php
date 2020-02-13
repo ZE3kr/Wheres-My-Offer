@@ -52,14 +52,18 @@ class UMich {
 
 		curl_close($curl);
 
-		if (trim($data) != ''){
+		$ad = strstr(strtolower($raw_data), 'congrat');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+
+		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim($data),
 				'cookie' => $this->cookie];
-			if(strstr(strtolower($raw_data), 'congrat')) {
+			if($ad) {
 				$return['admitted'] = true;
-			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!strstr(strtolower($raw_data), 'incomplete')
 				&& !strstr(strtolower($raw_data), 'missing')) {

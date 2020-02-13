@@ -47,9 +47,10 @@ class UNC {
 		$raw_data = $data;
 		$data = strstr($data, '<p>Hello ');
 		$data = strstr($data, '!</p><p>');
-		$ori_data = strstr($data, 'Logout</a>', true);
+		$ori_data = strstr($data, '<strong>Account Management</strong>', true);
 		$ori_data = preg_replace('/[0-9a-f-]{36}/', '', $ori_data);
 		$data = strstr(substr($data, 8), '</p>', true);
+		$data_html = str_replace('Thank you for applying to the University of North Carolina at Chapel Hill. We look forward to getting to know you.', '', $data);
 
 		$data2 = $ori_data;
 		$received = '';
@@ -63,6 +64,10 @@ class UNC {
 			
 			$data2 = substr(strstr($data2, '>'), 1);
 			$append = strstr($data2, '<', true);
+			$append2 = strstr($append, ' for ', true);
+			if($append2){
+				$append = $append2;
+			}
 			
 			if(strstr($chk, 'received') || strstr($chk, 'completed')){
 				$received .= $append.'. ';
@@ -80,14 +85,18 @@ class UNC {
 
 		curl_close($curl);
 
-		if (trim($data) != ''){
-			$return = ['sha' => md5($ori_data), 'data' => trim($data.' '.$waiting),
+		$ad = strstr(strtolower($raw_data), 'congrat');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+
+		if ($ad || $wl || $rej || trim($data) != ''){
+			$return = ['sha' => md5($ori_data), 'data' => trim($data),
 				'cookie' => $this->cookie];
-			if(strstr(strtolower($raw_data), 'congrat')) {
+			if($ad) {
 				$return['admitted'] = true;
-			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!$waiting) {
 				$return['complete'] = true;
@@ -99,7 +108,7 @@ class UNC {
 			if($received){
 				$received = ' <span class="alert-success small">'.trim($received).'</span>';
 			}
-			$return['html'] = trim($data).$waiting.$received;
+			$return['html'] = trim($data_html).$waiting.$received;
 			
 			$return['submitted'] = true;
 			return $return;

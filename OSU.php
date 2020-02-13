@@ -14,7 +14,7 @@ class OSU {
 
 	public function get_status(){
 		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/SA_LEARNER_SERVICES.SS_ADM_APP_STATUS.GBL');
+		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/OAD_CUST_MENU.OAD_APPSTATUS_INFO.GBL?Page=OAD_APPLSTS_INFO&Action=U&ACAD_CAREER=UGRD&ADM_APPL_NBR=02132636&APPL_PROG_NBR=0&EFFDT=2020-02-07&EFFSEQ=1&EMPLID=500525907&STDNT_CAR_NBR=0');
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl, CURLOPT_HEADER, 1);
@@ -28,9 +28,10 @@ class OSU {
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
 		$raw_data = $data;
-		$data = strstr($data, 'id=\'DESCRSHORT$0\'');
-		$data = strstr($data, '>');
-		$data = strstr(substr($data, 1), '</a>', true);
+		$data = strstr($data, '<!-- Begin HTML Area Name Undisclosed -->');
+		$data = strstr($data, '<br/>');
+		$data = strstr(substr($data, 5), '</div>', true);
+		$data = str_replace('The listed materials with a status of incomplete are those that are still needed to complete this application.  Please note: items received within the last 10 days may not be reflected on this page.', 'Incomplete', $data);
 
 		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
 		$data2 = curl_exec($curl);
@@ -51,19 +52,29 @@ class OSU {
 
 		curl_close($curl);
 
-		if (trim($data) != ''){
-			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim($data).'. '.trim($data2),
-				'cookie' => $this->cookie, 'html' => trim($data).'. <span class="alert-danger">'.trim($data2).'</span>'];
-			if(strstr(strtolower($raw_data), 'congrat')) {
+		$ad = strstr(strtolower($raw_data), 'congrat');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+
+		if ($ad || $wl || $rej || trim($data) != ''){
+			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim($data),
+				'cookie' => $this->cookie];
+			if($ad) {
 				$return['admitted'] = true;
-			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!$data2) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
+			
+			if($data2){
+				$data2 = ' <span class="alert-danger">'.trim($data2).'</span>';
+			}
+			$return['html'] = trim($data).$data2;
+			
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {
 			return ['sha' => md5($data).md5($ori_data2), 'data' => $data,

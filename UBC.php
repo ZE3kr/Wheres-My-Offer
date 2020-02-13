@@ -58,28 +58,48 @@ class UBC {
 		while($received != ''){
 			$received = substr($received, 4);
 			$append = trim(strstr($received, '</li>', true));
-			$received_list[$append] = true;
+			
+			$append2 = strstr($append, ' from ', true);
+			if($append2){
+				$append = $append2;
+			}
+			$append2 = strstr($append, ' - ', true);
+			if($append2){
+				$append = $append2;
+			}
+			
+			$received_list[$append] = ($received_list[$append] ?? 0) + 1;
 			$received = strstr($received, '<li>');
 		}
-		foreach($received_list as $key => $_){
-			$received .= $key.'. ';
+		foreach($received_list as $key => $i){
+			if($i > 1){
+				$received .= $key.' x'.$i.'. ';
+			} else {
+				$received .= $key.'. ';
+			}
 		}
 		if($received){
 			substr($received, 0, -2);
 		}
 		
 		$data = strstr(substr($data, 3), '</p>', true);
+		$data = str_replace('The following information is required before an evaluation can be completed:', 'Incomplete', $data);
 
 		curl_close($curl);
 
-		if (trim($data) != ''){
-			$return = ['sha' => md5($ori_data), 'data' => trim($data).' '.trim($missing),
+		$ad = strstr(strtolower($raw_data), 'congrat');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+
+
+		if ($ad || $wl || $rej || trim($data) != ''){
+			$return = ['sha' => md5($ori_data), 'data' => trim($data),
 				'cookie' => $this->cookie];
-			if(strstr(strtolower($raw_data), 'congrat')) {
+			if($ad) {
 				$return['admitted'] = true;
-			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
 			} else if(!$missing){
 				$return['complete'] = true;

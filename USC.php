@@ -49,8 +49,10 @@ class USC {
 		$data = substr($data, 15);
 		$ori_data = strstr($data, '<b>Withdraw Your Application</b>', true);
 		$ori_data = preg_replace('/[0-9a-f-]{36}/', '', $ori_data);
+		$ori_data = strstr($ori_data, '<form action="', true);
 		$data = strstr($data, '<h3>Application Checklist</h3><v><html><head><title></title></head><body>');
 		$data = strstr(substr($data, 73), '&#xA0;', true);
+		$data_html = str_replace('Items marked as "Awaiting" are still necessary for review of your application.', '', $data);
 		
 		$data2 = $ori_data;
 		$received = '';
@@ -64,6 +66,10 @@ class USC {
 			
 			$data2 = substr(strstr($data2, '>'), 1);
 			$append = strstr($data2, '<', true);
+			$append2 = strstr($append, ' for ', true);
+			if($append2){
+				$append = $append2;
+			}
 			
 			if(strstr($chk, 'received') || strstr($chk, 'completed')){
 				$received .= $append.'. ';
@@ -81,14 +87,18 @@ class USC {
 
 		curl_close($curl);
 
-		if (trim($data.$waiting) != '') {
-			$return = ['sha' => md5($ori_data), 'data' => trim($data.$waiting),
+		$ad = strstr(strtolower($raw_data), 'congrat');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+
+		if ($ad || $wl || $rej || trim($data.$waiting) != '') {
+			$return = ['sha' => md5($ori_data), 'data' => trim($data),
 				'cookie' => $this->cookie];
-			if(strstr(strtolower($raw_data), 'congrat')) {
+			if($ad) {
 				$return['admitted'] = true;
-			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!$waiting) {
 				$return['complete'] = true;
@@ -101,7 +111,7 @@ class USC {
 			if($received){
 				$received = ' <span class="alert-success small">'.trim($received).'</span>';
 			}
-			$return['html'] = trim($data).$waiting.$received;
+			$return['html'] = trim($data_html).$waiting.$received;
 			
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {

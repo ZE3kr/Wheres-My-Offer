@@ -46,19 +46,29 @@ class WISC {
 
 		curl_close($curl);
 
-		if (trim($data2) != ''){
-			$return = ['sha' => md5($data).md5($data2), 'data' => trim($data2).'. '.trim($data),
-				'cookie' => $this->cookie, 'html' => trim($data2).'. <span class="alert-danger">'.trim($data).'</span>'];
-			if(strstr(strtolower($raw_data.$raw_data2), 'congrat')) {
+		$ad = strstr(strtolower($raw_data.$raw_data2), 'congrat');
+		$wl = strstr(strtolower($raw_data.$raw_data2), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data.$raw_data2), 'reject') || strstr(strtolower($raw_data), 'sorry');
+
+		if ($ad || $wl || $rej || trim($data2) != ''){
+			$return = ['sha' => md5($data).md5($data2), 'data' => trim($data2),
+				'cookie' => $this->cookie];
+			if($ad) {
 				$return['accept'] = true;
-			} else if (strstr(strtolower($raw_data.$raw_data2), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data.$raw_data2), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!$data) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
+			
+			if($data){
+				$data = '<span class="alert-danger">'.trim($data).'</span>';
+			}
+			$return['html'] = trim($data2.' '.$data);
+			
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {
 			return ['sha' => md5($data).md5($data2), 'data' => $data,

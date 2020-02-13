@@ -54,23 +54,71 @@ class UIUC {
 		$raw_data = $data;
 		$data = strstr($data, '<strong>Status: </strong>');
 		$ori_data = $data;
+		$data2 = strstr($data, '<h2>Received Items</h2>');
+		$data2 = strstr($data2, '</ul>', true);
+		$data3 = strstr($data, '<h2>Missing Items</h2>');
+		$data3 = strstr($data3, '</ul>', true);
 		$data = substr(strstr($data, '</p>', true), 25);
 		curl_close($curl);
 
-		if (trim($data) != ''){
+		$data2 = strstr($data2, '<li>');
+		$received = '';
+		while($data2 != ''){
+			$data2 = substr($data2, 4);
+			$append = strstr($data2, '<em>', true);
+			$append2 = strstr($append, '<br', true);
+			if($append2){
+				$append = $append2;
+			}
+			$received .= trim($append).'. ';
+			$data2 = strstr($data2, '<li>');
+		}
+		if($received){
+			$received = substr($received, 0, -2);
+		}
+
+		$data3 = strstr($data3, '<li>');
+		$missing = '';
+		while($data3 != ''){
+			$data3 = substr($data3, 4);
+			$append = strstr($data3, '<em>', true);
+			$append2 = strstr($append, '<br', true);
+			if($append2){
+				$append = $append2;
+			}
+			$missing .= trim($append).'. ';
+			$data3 = strstr($data3, '<li>');
+		}
+		if($missing){
+			$missing = substr($missing, 0, -2);
+		}
+
+		$ad = strstr(strtolower($raw_data), 'congrat') || strstr(strtolower($raw_data), 're an illini');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+
+		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim($data),
 				'cookie' => $this->cookie];
-			if(strstr(strtolower($raw_data), 'congrat')) {
+			if($ad) {
 				$return['admitted'] = true;
-			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
-			} else if (!strstr(strtolower($raw_data), 'incomplete')
-				&& !strstr(strtolower($raw_data), 'missing')) {
+			} else if (!$missing) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
+
+			if($missing){
+				$missing = ' <span class="alert-danger">'.trim($missing).'</span>';
+			}
+			if($received){
+				$received = ' <span class="alert-success small">'.trim($received).'</span>';
+			}
+			$return['html'] = trim($data.$missing.$received);
+
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {
 			return ['sha' => md5($ori_data), 'data' => $data,

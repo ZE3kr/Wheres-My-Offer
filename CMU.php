@@ -39,27 +39,39 @@ class CMU {
 		while($data2 != ''){
 			$data2 = substr(strstr($data2, '>'), 1);
 			$append = trim(strstr($data2, '</td>', true));
-			$list[$append] = true;
+			$list[$append] = ($list[$append] ?? 0) + 1;
 			$data2 = strstr($data2, 'data-title="DOCUMENT"');
 		}
 
-		foreach($list as $key => $_) {
-			$data2 .= $key.'. ';
+		foreach($list as $key => $i ) {
+			if($i > 1){
+				$data2 .= $key.' x'.$i.'. ';
+			} else {
+				$data2 .= $key.'. ';
+			}
 		}
 		if($data2) {
 			$data2 = substr($data2, 0, -2);
 		}
 
-		if (trim($data) != ''){
-			$return = ['sha' => md5($ori_data), 'data' => trim($data).'. '.trim($data2),
-				'cookie' => $this->cookie, 'html' => trim($data).'. <span class="alert-success small">'.trim($data2).'</span>'];
-			if(strstr(strtolower($raw_data), 'congrat')) {
+		$ad = strstr(strtolower($raw_data), 'congrat');
+		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list') || strstr(strtolower($raw_data), 'defer');
+		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+		$cmplt = !strstr(strtolower($raw_data), 'incomplete') || !strstr(strtolower($raw_data), 'missing');
+
+		if ($ad || $wl || $rej || trim($data) != ''){
+			$return = ['sha' => md5($ori_data), 'data' => trim($data),
+				'cookie' => $this->cookie];
+			if($data2){
+				$return['html'] = '<span class="alert-success small">'.trim($data2).'</span>';
+			}
+			if($ad) {
 				$return['admitted'] = true;
-			} else if (strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list')){
+			} else if ($wl){
 				$return['waiting'] = true;
-			} else if(strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry')) {
+			} else if($rej) {
 				$return['reject'] = true;
-			} else if (!strstr(strtolower($raw_data), 'incomplete') || !strstr(strtolower($raw_data), 'missing')) {
+			} else if ($cmplt) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;

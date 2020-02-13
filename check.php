@@ -88,17 +88,16 @@ function check_update($result, $slug) {
 	unset($trim['cookie']);
 	var_dump( $trim );
 	if(!$prev){
-		$result['updated_time'] = $result['time'] = time();
+		$result['time_u'] = $result['updated_time'] = $result['time'] = time();
 		file_put_contents('/opt/admit/'.$slug, json_encode($result));
 		return;
 	}
-	if(isset($prev['admitted']) || isset($prev['reject'])) {
-		$result['updated_time'] = time();
-		file_put_contents('/opt/admit/'.$slug, json_encode($result));
+	if( (isset($prev['admitted']) || isset($prev['reject'])) && $prev['data'] == $result['data'] ) {
 		return;
 	}
 
 	if($result['sha'] != $prev['sha']) {
+		$append_data = $result['data'];
 		if(isset($result['admitted'])) {
 			$append_data = '录取！'.$result['data'];
 		}
@@ -106,20 +105,33 @@ function check_update($result, $slug) {
 			$append_data = '拒绝！'.$result['data'];
 		}
 		$data = urlencode($append_data);
+
 		file_get_contents("https://maker.ifttt.com/trigger/admit/with/key/YOUR_KEY?value1={$slug}&value2={$result['data']}");
-		if (isset($result['admitted']) || isset($result['reject'])){
+		if (isset($result['admitted']) || isset($result['reject']) || $slug == 'UMich'){
 			// Special condition when admitted/rejected by a university.
 			// e.g. Trigger a phone call, or send a tweet.
 		}
+
 		if(isset($prev['email'])){
 			$result['email'] = $prev['email'];
 		}
-		$result['time'] = $result['updated_time'] = time();
+		$result['time_u'] = $result['time'] = $result['updated_time'] = time();
+		if( $result['data'] != $prev['data'] ){
+			$result['email'][$prev['time_u'] ?? $prev['time']] = $prev['data'];
+		} else {
+			$result['time_u'] = $prev['time_u'] ?? $prev['time'];
+		}
 		file_put_contents('/opt/admit/'.$slug, json_encode($result));
 	} else {
 		$prev['updated_time'] = time();
 		if ( isset($result['cookie']) ){
 			$prev['cookie'] = $result['cookie'];
+		}
+		if ( isset($result['data']) ){
+			$prev['data'] = $result['data'];
+		}
+		if ( isset($result['html']) ){
+			$prev['html'] = $result['html'];
 		}
 		file_put_contents('/opt/admit/'.$slug, json_encode($prev));
 	}
