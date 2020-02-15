@@ -29,7 +29,7 @@ class CMU {
 		$data2 = strstr($data,'<!-- Received Documents -->');
 		$data2 = strstr($data2, '<!-- Sent Documents -->', true);
 		$data = strstr($data, '<h3 class="page-title display-inline">Welcome, ');
-		$ori_data = $data;
+		$ori_data = strip_tags($data);
 		$data = substr($data, 38);
 		$data = strstr($data, '</h3>', true);
 		curl_close($curl);

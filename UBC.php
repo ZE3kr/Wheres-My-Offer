@@ -26,7 +26,7 @@ class UBC {
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
 		$raw_data = $data;
-		$ori_data = strstr($data, '<td class="pageTitle">Application Status</td>');
+		$ori_data = strip_tags(strstr($data, '<td class="pageTitle">Application Status</td>'));
 		$data = strstr($data, '<td class="displayBoxFieldAlignTop">Status:</td>');
 		$data = strstr($data, '<p>');
 		

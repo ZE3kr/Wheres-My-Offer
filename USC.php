@@ -55,6 +55,7 @@ class USC {
 		$data_html = str_replace('Items marked as "Awaiting" are still necessary for review of your application.', '', $data);
 		
 		$data2 = $ori_data;
+		$ori_data = strip_tags($ori_data);
 		$received = '';
 		$waiting = '';
 		$data2 = strstr($data2, 'Status: ');

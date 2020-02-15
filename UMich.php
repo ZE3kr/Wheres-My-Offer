@@ -47,7 +47,7 @@ class UMich {
 		$raw_data = $data;
 		$data = strstr($data, '<a aria-controls="messages" aria-expanded="false" class="btn btn-dark stretched-link mmenu" data-target="#messages" data-toggle="collapse" href="#" role="button">');
 		$data = strstr($data, 'data-toggle="collapse" type="button">');
-		$ori_data = $data;
+		$ori_data = strip_tags($data);
 		$data = substr(strstr($data, '</button>', true), 37);
 
 		curl_close($curl);

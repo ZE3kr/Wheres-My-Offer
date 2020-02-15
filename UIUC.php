@@ -53,7 +53,7 @@ class UIUC {
 		$data = curl_exec($curl);
 		$raw_data = $data;
 		$data = strstr($data, '<strong>Status: </strong>');
-		$ori_data = $data;
+		$ori_data = strip_tags($data);
 		$data2 = strstr($data, '<h2>Received Items</h2>');
 		$data2 = strstr($data2, '</ul>', true);
 		$data3 = strstr($data, '<h2>Missing Items</h2>');
