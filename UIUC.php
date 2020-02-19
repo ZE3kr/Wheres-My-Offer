@@ -95,7 +95,7 @@ class UIUC {
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 're an illini') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),

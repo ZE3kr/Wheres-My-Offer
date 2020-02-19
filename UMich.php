@@ -54,7 +54,7 @@ class UMich {
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
 		$cmplt = !strstr($raw_data, 'incomplete') && !strstr($raw_data, 'missing');
 
 		if ($ad || $wl || $rej || trim($data) != ''){

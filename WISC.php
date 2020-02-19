@@ -5,12 +5,12 @@ class WISC {
 		$this->cookie = $cookie;
 	}
 	public function login(){
+		$prev = file_get_contents('/opt/admit/WISC');
+		$prev = json_decode($prev, true);
 		if(isset($prev['notified']) && $prev['notified'] == md5(json_encode($this->cookie))){
 			unset($this->cookie);
 			return;
 		}
-		$prev = file_get_contents('/opt/admit/WISC');
-		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
 			$this->cookie = $prev['cookie'];
 		}
@@ -57,7 +57,7 @@ class WISC {
 		$r = strtolower(strip_tags($raw_data.$raw_data2));
 		$ad = strstr($r, 'congrat') || strstr($r, 'accept') || strstr($r, 'admit');
 		$wl = strstr($r, 'waiting list') || strstr($r, 'wait list');
-		$rej = strstr($r, 'reject') || strstr($r, 'sorry');
+		$rej = strstr($r, 'reject') || strstr($r, 'denied') || strstr($r, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data2) != ''){
 			$return = ['sha' => md5($data).md5($data2), 'data' => trim(strip_tags($data2)),

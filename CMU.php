@@ -5,12 +5,12 @@ class CMU {
 		$this->cookie = $cookie;
 	}
 	public function login(){
+		$prev = file_get_contents('/opt/admit/CMU');
+		$prev = json_decode($prev, true);
 		if(isset($prev['notified']) && $prev['notified'] == md5(json_encode($this->cookie))){
 			unset($this->cookie);
 			return;
 		}
-		$prev = file_get_contents('/opt/admit/CMU');
-		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
 			$this->cookie = $prev['cookie'];
 		}
@@ -64,7 +64,7 @@ class CMU {
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
 		$cmplt = !strstr($raw_data, 'incomplete');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
