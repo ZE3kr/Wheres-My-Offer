@@ -44,7 +44,7 @@ class USC {
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		$data = curl_exec($curl);
-		$raw_data = $data;
+		$raw_data = strtolower(strip_tags($data));
 		$data = strstr($data, 'Logout</a></li>');
 		$data = substr($data, 15);
 		$ori_data = strstr($data, '<b>Withdraw Your Application</b>', true);
@@ -88,12 +88,12 @@ class USC {
 
 		curl_close($curl);
 
-		$ad = strstr(strtolower($raw_data), 'congrat');
-		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
-		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admitted');
+		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data.$waiting) != '') {
-			$return = ['sha' => md5($ori_data), 'data' => trim($data),
+			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($ad) {
 				$return['admitted'] = true;
@@ -115,9 +115,6 @@ class USC {
 			$return['html'] = trim($data_html).$waiting.$received;
 			
 			return $return;
-		} else if (strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($ori_data), 'data' => $data,
-				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
 	}

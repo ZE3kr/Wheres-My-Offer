@@ -5,6 +5,10 @@ class WISC {
 		$this->cookie = $cookie;
 	}
 	public function login(){
+		if(isset($prev['notified']) && $prev['notified'] == md5(json_encode($this->cookie))){
+			unset($this->cookie);
+			return;
+		}
 		$prev = file_get_contents('/opt/admit/WISC');
 		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
@@ -13,6 +17,10 @@ class WISC {
 	}
 
 	public function get_status(){
+		if(!isset($this->cookie) || !$this->cookie){
+			return NULL;
+		}
+
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,'https://madison.sis.wisc.edu/psc/sissso_4/EMPLOYEE/SA/c/SCC_TASKS_FL.SCC_TASKS_TODOS_FL.GBL');
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
@@ -46,12 +54,13 @@ class WISC {
 
 		curl_close($curl);
 
-		$ad = strstr(strtolower($raw_data.$raw_data2), 'congrat');
-		$wl = strstr(strtolower($raw_data.$raw_data2), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
-		$rej = strstr(strtolower($raw_data.$raw_data2), 'reject') || strstr(strtolower($raw_data), 'sorry');
+		$r = strtolower(strip_tags($raw_data.$raw_data2));
+		$ad = strstr($r, 'congrat') || strstr($r, 'accept') || strstr($r, 'admit');
+		$wl = strstr($r, 'waiting list') || strstr($r, 'wait list');
+		$rej = strstr($r, 'reject') || strstr($r, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data2) != ''){
-			$return = ['sha' => md5($data).md5($data2), 'data' => trim($data2),
+			$return = ['sha' => md5($data).md5($data2), 'data' => trim(strip_tags($data2)),
 				'cookie' => $this->cookie];
 			if($ad) {
 				$return['accept'] = true;

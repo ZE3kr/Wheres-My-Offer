@@ -21,6 +21,10 @@ Supported Universities:
 + WISC
 + CMU
 
+Supported Others:
+
++ MCM/ICM Contest
+
 And more to come.
 
 Features:

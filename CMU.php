@@ -5,6 +5,10 @@ class CMU {
 		$this->cookie = $cookie;
 	}
 	public function login(){
+		if(isset($prev['notified']) && $prev['notified'] == md5(json_encode($this->cookie))){
+			unset($this->cookie);
+			return;
+		}
 		$prev = file_get_contents('/opt/admit/CMU');
 		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
@@ -13,6 +17,10 @@ class CMU {
 	}
 
 	public function get_status(){
+		if(!isset($this->cookie) || !$this->cookie){
+			return NULL;
+		}
+
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,'https://s3.andrew.cmu.edu/aio/wai');
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
@@ -25,7 +33,7 @@ class CMU {
 			parse_str($item, $cookie);
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
-		$raw_data = $data;
+		$raw_data = strtolower(strip_tags($data));
 		$data2 = strstr($data,'<!-- Received Documents -->');
 		$data2 = strstr($data2, '<!-- Sent Documents -->', true);
 		$data = strstr($data, '<h3 class="page-title display-inline">Welcome, ');
@@ -54,13 +62,13 @@ class CMU {
 			$data2 = substr($data2, 0, -2);
 		}
 
-		$ad = strstr(strtolower($raw_data), 'congrat');
-		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
-		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
-		$cmplt = !strstr(strtolower($raw_data), 'incomplete') || !strstr(strtolower($raw_data), 'missing');
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
+		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
+		$cmplt = !strstr($raw_data, 'incomplete');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
-			$return = ['sha' => md5($ori_data), 'data' => trim($data),
+			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($data2){
 				$return['html'] = '<span class="alert-success small">'.trim($data2).'</span>';
@@ -76,9 +84,6 @@ class CMU {
 			}
 			$return['submitted'] = true;
 			return $return;
-		} else if (strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($ori_data), 'data' => $data,
-				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
 	}

@@ -5,6 +5,10 @@ class OSU {
 		$this->cookie = $cookie;
 	}
 	public function login(){
+		if(isset($prev['notified']) && $prev['notified'] == md5(json_encode($this->cookie))){
+			unset($this->cookie);
+			return;
+		}
 		$prev = file_get_contents('/opt/admit/OSU');
 		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
@@ -13,6 +17,10 @@ class OSU {
 	}
 
 	public function get_status(){
+		if(!isset($this->cookie) || !$this->cookie){
+			return NULL;
+		}
+
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/OAD_CUST_MENU.OAD_APPSTATUS_INFO.GBL?Page=OAD_APPLSTS_INFO&Action=U&ACAD_CAREER=UGRD&ADM_APPL_NBR=02132636&APPL_PROG_NBR=0&EFFDT=2020-02-07&EFFSEQ=1&EMPLID=500525907&STDNT_CAR_NBR=0');
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
@@ -27,7 +35,7 @@ class OSU {
 			parse_str($item, $cookie);
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
-		$raw_data = $data;
+		$raw_data = strtolower(strip_tags($data));
 		$data = strstr($data, '<!-- Begin HTML Area Name Undisclosed -->');
 		$data = strstr($data, '<br/>');
 		$data = strstr(substr($data, 5), '</div>', true);
@@ -52,12 +60,12 @@ class OSU {
 
 		curl_close($curl);
 
-		$ad = strstr(strtolower($raw_data), 'congrat');
-		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
-		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
+		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
-			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim($data),
+			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($ad) {
 				$return['admitted'] = true;
@@ -76,9 +84,6 @@ class OSU {
 			$return['html'] = trim($data).$data2;
 			
 			return $return;
-		} else if (strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($data).md5($ori_data2), 'data' => $data,
-				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
 	}

@@ -44,7 +44,7 @@ class UNC {
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		$data = curl_exec($curl);
-		$raw_data = $data;
+		$raw_data = strtolower(strip_tags($data));
 		$data = strstr($data, '<p>Hello ');
 		$data = strstr($data, '!</p><p>');
 		$ori_data = strstr($data, '<strong>Account Management</strong>', true);
@@ -86,12 +86,12 @@ class UNC {
 
 		curl_close($curl);
 
-		$ad = strstr(strtolower($raw_data), 'congrat');
-		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
-		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
+		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
-			$return = ['sha' => md5($ori_data), 'data' => trim($data),
+			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($ad) {
 				$return['admitted'] = true;
@@ -113,9 +113,6 @@ class UNC {
 			
 			$return['submitted'] = true;
 			return $return;
-		} else if (strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($ori_data), 'data' => $data,
-				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
 	}

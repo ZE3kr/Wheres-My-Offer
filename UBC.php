@@ -5,6 +5,10 @@ class UBC {
 		$this->cookie = $cookie;
 	}
 	public function login(){
+		if(isset($prev['notified']) && $prev['notified'] == md5(json_encode($this->cookie))){
+			unset($this->cookie);
+			return;
+		}
 		$prev = file_get_contents('/opt/admit/UBC');
 		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
@@ -13,6 +17,10 @@ class UBC {
 	}
 
 	public function get_status(){
+		if(!isset($this->cookie) || !$this->cookie){
+			return NULL;
+		}
+
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,'https://ssc.adm.ubc.ca/sscportal/servlets/SRVApplicantStatus');
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
@@ -25,7 +33,7 @@ class UBC {
 			parse_str($item, $cookie);
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
-		$raw_data = $data;
+		$raw_data = strtolower(strip_tags($data));
 		$ori_data = strip_tags(strstr($data, '<td class="pageTitle">Application Status</td>'));
 		$data = strstr($data, '<td class="displayBoxFieldAlignTop">Status:</td>');
 		$data = strstr($data, '<p>');
@@ -87,13 +95,12 @@ class UBC {
 
 		curl_close($curl);
 
-		$ad = strstr(strtolower($raw_data), 'congrat');
-		$wl = strstr(strtolower($raw_data), 'waiting list') || strstr(strtolower($raw_data), 'wait list');
-		$rej = strstr(strtolower($raw_data), 'reject') || strstr(strtolower($raw_data), 'sorry');
-
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
+		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
-			$return = ['sha' => md5($ori_data), 'data' => trim($data),
+			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($ad) {
 				$return['admitted'] = true;
@@ -115,9 +122,6 @@ class UBC {
 			$return['html'] = trim($data).$missing.$received;
 
 			return $return;
-		} else if (strstr(strtolower($raw_data), 'congrat')) {
-			return ['sha' => md5($ori_data), 'data' => $data,
-				'cookie' => $this->cookie, 'admitted' => true];
 		}
 		return NULL;
 	}
