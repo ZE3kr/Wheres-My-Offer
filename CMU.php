@@ -13,6 +13,62 @@ class CMU {
 		}
 		if (isset($prev['cookie'])){
 			$this->cookie = $prev['cookie'];
+			return;
+		}
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, 'https://s3.andrew.cmu.edu/aio/wai');
+		curl_setopt($curl, CURLOPT_HEADER, 1);
+		curl_setopt($curl, CURLOPT_USERAGENT,'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36');
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+		$data = curl_exec($curl);
+
+		$url = strstr($data, 'https://socialgateway.cmu.edu/');
+		$url = strstr($url, "\r\n", true);
+
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
+		$data = curl_exec($curl);
+
+		curl_setopt($curl, CURLOPT_REFERER, $url);
+		curl_setopt($curl, CURLOPT_URL, 'https://s3.andrew.cmu.edu/aio/Shibboleth.sso/SAML2/POST');
+		$RelayState = strstr($data, '<input type="hidden" name="RelayState" value="');
+		$RelayState = strstr(substr($RelayState, 46), '"', true);
+		$SAMLResponse = strstr($data, '<input type="hidden" name="SAMLResponse" value="');
+		$SAMLResponse = strstr(substr($SAMLResponse, 48), '"', true);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+		curl_setopt($curl, CURLOPT_POST, 1);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, 'RelayState='.urlencode($RelayState).'&SAMLResponse='.urlencode($SAMLResponse));
+		$data = curl_exec($curl);
+		
+		preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $data, $matches);
+		foreach($matches[1] as $item) {
+			parse_str($item, $cookie);
+			$this->cookie = array_merge($this->cookie, $cookie);
+		}
+		
+		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
+		curl_setopt($curl, CURLOPT_URL, 'https://s3.andrew.cmu.edu/aio/wai');
+		curl_setopt($curl, CURLOPT_POSTFIELDS, null);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+		$data = curl_exec($curl);
+
+		preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $data, $matches);
+		foreach($matches[1] as $item) {
+			parse_str($item, $cookie);
+			$this->cookie = array_merge($this->cookie, $cookie);
+		}
+
+		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
+		curl_setopt($curl, CURLOPT_URL, 'https://s3.andrew.cmu.edu/aio/s3Login');
+		curl_setopt($curl, CURLOPT_POSTFIELDS, null);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+		$data = curl_exec($curl);
+
+		preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $data, $matches);
+		foreach($matches[1] as $item) {
+			parse_str($item, $cookie);
+			$this->cookie = array_merge($this->cookie, $cookie);
 		}
 	}
 
