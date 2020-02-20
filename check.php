@@ -1,12 +1,31 @@
 <?php
+require_once "UBC.php";
+require_once "CMU.php";
 require_once "UIUC.php";
 require_once "UMich.php";
 require_once "USC.php";
 require_once "UNC.php";
-require_once "UBC.php";
 require_once "OSU.php";
 require_once "WISC.php";
-require_once "CMU.php";
+require_once "MCM.php";
+
+$ubc = new UBC();
+$ubc->setup([
+	'JSESSIONID' => 'XXXXXXXX-XXXXXXXXXXXXXXX'
+]);
+$ubc->login();
+echo "\n\n\nUBC: \n";
+check_update($ubc->get_status(), 'UBC');
+
+$cmu = new CMU();
+$cmu->setup([
+	'JSESSIONID' => 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF-xx.xxxx',
+	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+			=> '_ffffffffffffffffffffffffffffffff'
+]);
+$cmu->login();
+echo "\n\n\nCMU: \n";
+check_update( $cmu->get_status(), 'CMU');
 
 $uiuc = new UIUC();
 $uiuc->setup('username', 'password');
@@ -32,45 +51,20 @@ $UNC->login();
 echo "\n\n\nUNC: \n";
 check_update( $UNC->get_status(), 'UNC' );
 
-$ubc = new UBC();
-$ubc->setup([
-	'JSESSIONID' => 'XXXXXXXX-XXXXXXXXXXXXXXX'
-]);
-$ubc->login();
-echo "\n\n\nUBC: \n";
-check_update($ubc->get_status(), 'UBC');
+$mcm = new MCM();
+$mcm->setup('username', 'password');
+$mcm->login();
+echo "\n\n\nMCM: \n";
+check_update($mcm->get_status(), 'MCM');
 
 $osu = new OSU();
-$osu->setup([
-	'NSC_NX-DTPTV-TJT-TTM-WT' => 'ffffffffffffffffffffffffffffffffffffffffffff',
-	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-			=> '_ffffffffffffffffffffffffffffffff',
-	'PS_TOKEN'
-			=> 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-	'hcwebprd02-10000-PORTAL-PSJSESSIONID' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-]);
+$osu->setup('username', 'password');
 $osu->login();
 echo "\n\n\nOSU: \n";
 check_update( $osu->get_status(), 'OSU' );
 
-$cmu = new CMU();
-$cmu->setup([
-	'JSESSIONID' => 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF-xx.xxxx',
-	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-			=> '_ffffffffffffffffffffffffffffffff'
-]);
-$cmu->login();
-echo "\n\n\nCMU: \n";
-check_update( $cmu->get_status(), 'CMU');
-
 $wisc = new WISC();
-$wisc->setup([
-	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-			=> '_ffffffffffffffffffffffffffffffff',
-	'badlands.doit.wisc.edu-0000-PORTAL-PSJSESSIONID'
-			=> 'xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxx!-00000000',
-	'L4-LB.SISPRD-COOKIE' => 'ffffffffffffffffffffffffffffffffffffffffffff'
-]);
+$wisc->setup('username', 'password');
 $wisc->login();
 echo "\n\n\nWISC: \n";
 check_update($wisc->get_status(), 'WISC');

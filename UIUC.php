@@ -30,7 +30,7 @@ class UIUC {
 			$this->cookie = array_merge($this->cookie, $cookie);
 		}
 		$data = strstr($data, '<input name="__RequestVerificationToken" type="hidden" value="');
-		$data = substr($data, 62, 155);
+		$data = strstr(substr($data, 62), '"', true);
 
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
 		$request = "Username=${u}&Password=${p}&__RequestVerificationToken=${data}";

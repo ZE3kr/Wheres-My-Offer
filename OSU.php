@@ -1,45 +1,79 @@
 <?php
 class OSU {
 	private $cookie = [];
-	public function setup($cookie){
-		$this->cookie = $cookie;
+	private $user_name = '';
+	private $password = '';
+
+	public function setup(string $u, string $p){
+		$this->user_name = $u;
+		$this->password = $p;
 	}
 	public function login(){
 		$prev = file_get_contents('/opt/admit/OSU');
 		$prev = json_decode($prev, true);
-		if(isset($prev['notified']) && $prev['notified'] == md5(json_encode($this->cookie))){
-			unset($this->cookie);
+
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, 'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
+		// curl_setopt($curl, CURLOPT_POST, 1);
+		$u = $this->user_name;
+		$p = $this->password;
+		curl_setopt($curl, CURLOPT_HEADER, 1);
+		curl_setopt($curl, CURLOPT_USERAGENT,'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36');
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+		if ($prev['updated_time'] + 300 > time()){
+			curl_setopt($curl, CURLOPT_COOKIEJAR, '/opt/cookies/OSU');
+			curl_setopt($curl, CURLOPT_COOKIEFILE, '/opt/cookies/OSU');
 			return;
+		} else {
+			file_put_contents('/opt/cookies/OSU', '');
+			curl_setopt($curl, CURLOPT_COOKIEJAR, '/opt/cookies/OSU');
+			curl_setopt($curl, CURLOPT_COOKIEFILE, '/opt/cookies/OSU');
 		}
-		if (isset($prev['cookie'])){
-			$this->cookie = $prev['cookie'];
-		}
+		$data = curl_exec($curl);
+		$url = strstr($data, 'https://webauth.service.ohio-state.edu/idp/profile/SAML2/Redirect/SSO?execution=');
+		$url = substr($url, 0, 84);
+
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, 'shib_idp_ls_exception.shib_idp_session_ss=&shib_idp_ls_success.shib_idp_session_ss=true&_eventId_proceed=');
+
+		$data = curl_exec($curl);
+
+		$url = strstr($data, 'https://webauth.service.ohio-state.edu/idp/profile/SAML2/Redirect/SSO?execution=');
+		$url = substr($url, 0, 84);
+
+		curl_setopt($curl, CURLOPT_URL,$url);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, 'j_username='.
+			urlencode($u).'&j_password='.urlencode($p).'&donotcache=0&_eventId_proceed=Logging+in%2C+please+wait...');
+		$data = curl_exec($curl);
+
+		$RelayState = strstr($data, '<input type="hidden" name="RelayState" value="');
+		$RelayState = str_replace('&#x3a;', ':', strstr(substr($RelayState, 46), '"', true));
+		$SAMLResponse = strstr($data, '<input type="hidden" name="SAMLResponse" value="');
+		$SAMLResponse = strstr(substr($SAMLResponse, 48), '"', true);
+
+		curl_setopt($curl, CURLOPT_URL, 'https://sis.erp.ohio-state.edu/Shibboleth.sso/SAML2/POST');
+		curl_setopt($curl, CURLOPT_POSTFIELDS, 'RelayState='.urlencode($RelayState).'&SAMLResponse='.urlencode($SAMLResponse));
+		$data = curl_exec($curl);
 	}
 
 	public function get_status(){
-		if(!isset($this->cookie) || !$this->cookie){
-			return NULL;
-		}
-
 		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/OAD_CUST_MENU.OAD_APPSTATUS_INFO.GBL?Page=OAD_APPLSTS_INFO&Action=U&ACAD_CAREER=UGRD&ADM_APPL_NBR=02132636&APPL_PROG_NBR=0&EFFDT=2020-02-07&EFFSEQ=1&EMPLID=500525907&STDNT_CAR_NBR=0');
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
+		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/SA_LEARNER_SERVICES.SS_ADM_APP_STATUS.GBL?Page=OAD_SS_APP_STATUS&Action=U&ExactKeys=Y&DERIVED_SSTSKEY=DERIVED_SSTSKEY');
+		curl_setopt($curl, CURLOPT_COOKIEJAR, '/opt/cookies/OSU');
+		curl_setopt($curl, CURLOPT_COOKIEFILE, '/opt/cookies/OSU');
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl, CURLOPT_HEADER, 1);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		$data = curl_exec($curl);
-		preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $data, $matches);
-		foreach($matches[1] as $item) {
-			parse_str($item, $cookie);
-			$this->cookie = array_merge($this->cookie, $cookie);
-		}
 		$raw_data = strtolower(strip_tags($data));
-		$data = strstr($data, '<!-- Begin HTML Area Name Undisclosed -->');
-		$data = strstr($data, '<br/>');
-		$data = strstr(substr($data, 5), '</div>', true);
-		$data = str_replace('The listed materials with a status of incomplete are those that are still needed to complete this application.  Please note: items received within the last 10 days may not be reflected on this page.', 'Incomplete', $data);
+		$data = strstr($data, 'id=\'DESCRSHORT$0\'');
+		$data = strstr($data, '>');
+		$data = strstr(substr($data, 1), '<', true);
 
 		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
 		$data2 = curl_exec($curl);
@@ -65,8 +99,7 @@ class OSU {
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
-			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim(strip_tags($data)),
-				'cookie' => $this->cookie];
+			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim(strip_tags($data))];
 			if($ad) {
 				$return['admitted'] = true;
 			} else if ($wl){
@@ -82,16 +115,9 @@ class OSU {
 				$data2 = ' <span class="alert-danger">'.trim($data2).'</span>';
 			}
 			$return['html'] = trim($data).$data2;
-			
+
 			return $return;
 		}
 		return NULL;
-	}
-
-	private function cookie_str(){
-		foreach($this->cookie as $k => $v){ // this will fail if there are any more -public- variables declared in the class.
-			$c[] = "$k=$v";
-		}
-		return implode('; ', $c);
 	}
 }

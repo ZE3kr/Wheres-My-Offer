@@ -23,8 +23,8 @@ class MCM {
 		$request = "login=1&email=${u}&password=${p}&login=Login";
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $request);
 		$data = curl_exec($curl);
-		$raw_data = $data;
-		$data = strstr($raw_data, '<b>Electronic Solution Received:</b>');
+		$raw_data = strtolower(strip_tags($data));
+		$data = strstr($data, '<b>Electronic Solution Received:</b>');
 		$ori_data = strstr($data, '</table>', true);
 		$data = substr(strstr($data, '</td>', true), 36);
 		$data = trim(strip_tags($data));
@@ -39,10 +39,20 @@ class MCM {
 
 		curl_close($curl);
 
+		$rej = strstr($raw_data, 'unsuccess') || strstr($raw_data, 'disqualif');
+		$ad = strstr($raw_data, 'success') || strstr($raw_data, 'honor') || strstr($raw_data, 'merit')
+			|| strstr($raw_data, 'final') || strstr($raw_data, 'outstand');
+
 		if (trim($data) != ''){
-			return ['sha' => md5($ori_data), 'data' => trim(strip_tags(isset($data2) ? $data2 : $data)),
-				'html' => trim('<ul><li><strong>Submission</strong>: '.$data.'</li><li><strong>Designation</strong>: '.($data2 ?? 'N/A').'</li></ul>'),
+			$return = ['sha' => md5($ori_data), 'data' => (isset($data2) && $data2 ? $data2 : $data),
+				'html' => trim('<ul><li><strong>Submission</strong>: '.$data.'</li><li><strong>Designation</strong>: '.(isset($data2) && $data2 ? $data2 : 'N/A').'</li></ul>'),
 				'other' => true, 'submitted' => true];
+			if($rej) {
+				$return['reject'] = true;
+			} else if ($ad) {
+				$return['admitted'] = true;
+			}
+			return $return;
 		}
 		return NULL;
 	}
