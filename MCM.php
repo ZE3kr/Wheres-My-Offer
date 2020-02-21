@@ -51,6 +51,8 @@ class MCM {
 				$return['reject'] = true;
 			} else if ($ad) {
 				$return['admitted'] = true;
+			} else if( trim($data) != '(not yet received)' ){
+				$return['complete'] = true;
 			}
 			return $return;
 		}

@@ -71,7 +71,7 @@ class USC {
 			if($append2){
 				$append = $append2;
 			}
-			
+
 			if(strstr($chk, 'received') || strstr($chk, 'completed')){
 				$received .= $append.'. ';
 			} else {
@@ -88,7 +88,7 @@ class USC {
 
 		curl_close($curl);
 
-		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admitted');
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
 
@@ -101,12 +101,12 @@ class USC {
 				$return['waiting'] = true;
 			} else if($rej) {
 				$return['reject'] = true;
-			} else if (!$waiting) {
+			} else if (!trim($waiting)) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
 			
-			if($waiting){
+			if(trim($waiting)){
 				$waiting = ' <span class="alert-danger">'.trim($waiting).'</span>';
 			}
 			if($received){

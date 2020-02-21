@@ -49,7 +49,6 @@ class WISC {
 
 		$url = strstr($data, 'https://login.wisc.edu/idp/profile/SAML2/POST/SSO?execution=');
 		$url = substr($url, 0, 64);
-		var_dump($url);
 		curl_setopt($this->curl, CURLOPT_URL, $url);
 		curl_setopt($this->curl, CURLOPT_POSTFIELDS, 'j_username='.
 			$u.'&j_password='.urlencode($p).'&_eventId_proceed=');
@@ -73,7 +72,6 @@ class WISC {
 	public function get_status(){
 		curl_setopt($this->curl, CURLOPT_URL,'https://madison.sis.wisc.edu/psc/sissso_4/EMPLOYEE/SA/c/SCC_TASKS_FL.SCC_TASKS_TODOS_FL.GBL');
 		$data = curl_exec($this->curl);
-		var_dump($data);
 		$raw_data = $data;
 		$data = strstr($data, '<span class=\'ps-text\' id=\'PANEL_TITLElbl\'>To Do List</span>');
 
@@ -89,7 +87,6 @@ class WISC {
 
 		curl_setopt($this->curl, CURLOPT_URL,'https://madison.sis.wisc.edu/psc/sissso/EMPLOYEE/SA/c/SAD_APPLICANT_FL.SAD_APPL_SELECT_FL.GBL');
 		$data2 = curl_exec($this->curl);
-		var_dump($data2);
 		$raw_data2 = $data2;
 		$data2 = strstr($data2, 'id=\'DERIVED_SAD_FL_SAD_ACAD_STATUS\'');
 		$data2 = strstr(substr(strstr($data2, '>'), 1), '</span>', true);
@@ -105,7 +102,7 @@ class WISC {
 			$return = ['sha' => md5($data).md5($data2), 'data' => trim(strip_tags($data2)),
 				'cookie' => $this->cookie];
 			if($ad) {
-				$return['accept'] = true;
+				$return['admitted'] = true;
 			} else if ($wl){
 				$return['waiting'] = true;
 			} else if($rej) {
@@ -119,7 +116,6 @@ class WISC {
 				$data = '<span class="alert-danger">'.trim($data).'</span>';
 			}
 			$return['html'] = trim($data2.' '.$data);
-			var_dump($return);
 			return $return;
 		} else if (strstr(strtolower($raw_data), 'congrat')) {
 			return ['sha' => md5($data).md5($data2), 'data' => $data,
