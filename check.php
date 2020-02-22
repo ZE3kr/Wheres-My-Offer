@@ -1,13 +1,13 @@
 <?php
-require_once "UBC.php";
-require_once "CMU.php";
-require_once "UIUC.php";
-require_once "UMich.php";
-require_once "USC.php";
-require_once "UNC.php";
-require_once "OSU.php";
-require_once "WISC.php";
-require_once "MCM.php";
+require_once "univs/UBC.php";
+require_once "univs/CMU.php";
+require_once "univs/UIUC.php";
+require_once "univs/UMich.php";
+require_once "univs/USC.php";
+require_once "univs/UNC.php";
+require_once "univs/OSU.php";
+require_once "univs/WISC.php";
+require_once "univs/MCM.php";
 
 $ubc = new UBC();
 $ubc->setup([

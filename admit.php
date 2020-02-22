@@ -44,6 +44,9 @@ $latest_admit = 0;
 $no_fire_work = false;
 $latest_reject = 0;
 foreach ($admitted_status as $univ => $status) {
+	if(isset($status['other'])){
+		continue;
+	}
 	if(isset($status['admitted'])){
 		$n_admit++;
 		if($status['time'] + 86400 > time()){
@@ -73,7 +76,7 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="refresh" content="<?php
-	$r = 30 - date('s');
+	$r = 5 - date('s');
 	while($r < 50) {
 		$r += 60;
 	}
@@ -106,6 +109,7 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 				max-height: calc((100vh - 360px) / 6);
 				min-height: 150px;
 				overflow-y: scroll;
+				border-radius: 0!important;
 			}
 		}
 		@media (min-width: 992px) {
@@ -371,7 +375,11 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 		Reset
 	</button>
 	<div class="list-group my-3 list-group-horizontal-md row mx-0" id="statusList">
-		<?php foreach ($admitted_status as $univ => $status) { ?>
+		<?php foreach ($admitted_status as $univ => $status) {
+			if(isset($status['other'])){
+				continue;
+			}
+			?>
 			<div class="list-group-item list-group-item-action col-md-6 col-lg-4 col-xl-3 <?php
 			if(isset($status['admitted'])){
 				echo 'list-group-item-success';
@@ -388,7 +396,7 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 				<div class="d-flex w-100 justify-content-between">
 					<h5 class="mb-1"><?php echo $univ.'<small> '.$translate[$univ].'</small>'; unset($translate[$univ]); ?></h5>
 					<small style="text-align: right; line-height: 1.75;" class="mt-1"><?php if($status['time'] + 3600 > time()){
-							echo '<span class="badge badge-pill badge-success" data-toggle="tooltip" data-placement="bottom" title="'.date('n.j H:i', $status['updated_time']).'">';
+							echo '<span class="badge badge-pill badge-success" data-toggle="tooltip" data-placement="bottom" title="'.date('n.j H:i', $status['time']).'">';
 							$ago = time() - $status['time'];
 							if($ago < 120 ){
 								echo 'In 1 min';
@@ -397,7 +405,8 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 							}
 							echo '</span>';
 						} else if($status['time'] + 86400 > time()){
-							echo '<span class="badge badge-pill badge-info" data-toggle="tooltip" data-placement="bottom" title="Changed in last 24 hours">'.date('n.j H:i', $status['time']).'</span>';
+							echo '<span class="badge badge-pill badge-info" data-toggle="tooltip" data-placement="bottom" title="Changed '
+								.floor((time() - $status['time'])/3600).' hrs ago">'.date('n.j H:i', $status['time']).'</span>';
 						} else if($status['time'] + 31536000 < time()){
 							echo '<strong>'.date('y.n.j H:i', $status['time']).'</strong>';
 						} else {
@@ -418,15 +427,19 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 						if($status['updated_time'] + 604800 < time()){
 							// Intended
 						} else if(!isset($status['admitted']) && !isset($status['reject'])) {
-							echo '<br />Checked at ';
+							echo '<br />Checked at';
 							if($status['updated_time'] + 86400 < time()){
-								echo ': <span class="badge badge-pill badge-danger" data-toggle="tooltip" data-placement="bottom" title="Have not changed in last 24 hours">'.date('n.j H:i', $status['updated_time']).'</span>';
+								echo ': <span class="badge badge-pill badge-danger" data-toggle="tooltip" data-placement="bottom" title="Have not updated for '.
+									floor((time() - $status['updated_time'])/86400).' days">'.date('n.j H:i', $status['updated_time']).'</span>';
 							} else if($status['updated_time'] + 3600 < time()){
-								echo ': <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="bottom" title="Have not changed in 1 hour">'.date('n.j H:i', $status['updated_time']).'</span>';
+								echo ': <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="bottom" title="Have not updated for '.
+									floor((time() - $status['updated_time'])/3600).' hrs">'.date('n.j H:i', $status['updated_time']).'</span>';
 							} else {
 								$ago = time() - $status['updated_time'];
 								if($ago < 120 ){
 									echo ' In 1 min';
+								} else if ($ago < 360) {
+									echo ' '.floor($ago/60). ' mins ago';
 								} else {
 									echo ' <span class="badge badge-pill badge-info"  data-toggle="tooltip" data-placement="bottom" title="'.date('n.j H:i', $status['updated_time']).'">'.floor($ago/60). ' mins ago</span>';
 								}
@@ -460,10 +473,94 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 			</div>
 		<?php } ?>
 	</div>
+	<h2>Realtime Competition</h2>
+	<div class="list-group my-3 list-group-horizontal-md row mx-0">
+		<?php foreach ($admitted_status as $univ => $status) {
+			if(!isset($status['other'])){
+				continue;
+			}
+			?>
+			<div class="list-group-item list-group-item-action col-md-6 col-lg-4 col-xl-3 <?php
+			if(isset($status['admitted'])){
+				echo 'list-group-item-success';
+			} else if (isset($status['reject'])) {
+				echo 'list-group-item-danger';
+			} else if (isset($status['complete'])) {
+				echo 'list-group-item-primary';
+			} else if (isset($status['submitted'])) {
+				echo 'list-group-item-warning';
+			}
+			?>">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1"><?php echo $univ.'<small> '.$translate_o[$univ].'</small>'; ?></h5>
+					<small style="text-align: right; line-height: 1.75;" class="mt-1"><?php if($status['time'] + 3600 > time()){
+							echo '<span class="badge badge-pill badge-success" data-toggle="tooltip" data-placement="bottom" title="'.date('n.j H:i', $status['updated_time']).'">';
+							$ago = time() - $status['time'];
+							if($ago < 120 ){
+								echo 'In 1 min';
+							} else {
+								echo floor($ago/60). ' mins ago';
+							}
+							echo '</span>';
+						} else if($status['time'] + 86400 > time()){
+							echo '<span class="badge badge-pill badge-info" data-toggle="tooltip" data-placement="bottom" title="Changed '
+								.floor((time() - $status['time'])/3600).' hrs ago">'.date('n.j H:i', $status['time']).'</span>';
+						} else if($status['time'] + 31536000 < time()){
+							echo '<strong>'.date('y.n.j H:i', $status['time']).'</strong>';
+						} else {
+							echo '<strong>'.date('n.j H:i', $status['time']).'</strong>';
+						}?><?php if(isset($status['admitted'])){
+							echo ' Success';
+						} else if (isset($status['reject'])) {
+							echo ' Failed';
+						} else if (isset($status['complete'])) {
+							echo ' Complete';
+						} else if (isset($status['submitted'])) {
+							echo ' Waiting';
+						}
+						if($status['updated_time'] + 604800 < time()){
+							// Intended
+						} else if(!isset($status['admitted']) && !isset($status['reject'])) {
+							echo '<br />Checked at ';
+							if($status['updated_time'] + 86400 < time()){
+								echo ': <span class="badge badge-pill badge-danger" data-toggle="tooltip" data-placement="bottom" title="Have not updated for '.
+									floor((time() - $status['updated_time'])/86400).' days">'.date('n.j H:i', $status['updated_time']).'</span>';
+							} else if($status['updated_time'] + 3600 < time()){
+								echo ': <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="bottom" title="Have not updated for '.
+									floor((time() - $status['updated_time'])/3600).' hours">'.date('n.j H:i', $status['updated_time']).'</span>';
+							} else {
+								$ago = time() - $status['updated_time'];
+								if($ago < 120 ){
+									echo ' In 1 min';
+								} else {
+									echo ' '.floor($ago/60). ' mins ago';
+								}
+							}
+						}
+						?></small>
+				</div>
+				<p class="mb-1"><?php echo $status['html'] ?? htmlspecialchars($status['data']); ?></p>
+				<?php if(isset($status['email'])) {
+					echo '<ul class="mb-1">';
+					krsort($status['email']);
+					foreach ($status['email'] as $time => $email){
+						$email = preg_replace('/[0-9]{5,}/', 'XXXXX', $email);
+						if($time == $status['time']){ ?>
+							<li class="small"><?php echo $email; ?></li>
+						<?php } else { ?>
+							<li class="small"><?php echo '<strong>'.date('n.j H:i', $time).'</strong>: '.$email; ?></li>
+							<?php
+						}
+					}
+					echo '</ul>';
+				} ?>
+			</div>
+		<?php } ?>
+	</div>
 	<footer class="mb-5"><a target="_blank" href="https://github.com/ZE3kr/Wheres-My-Offer">Available on Github</a></footer>
 </main>
 <script type="text/javascript">
-	var message = 'Please wait for changes.';
+	var message = 'Please wait patiently and monitor this page regularly!';
 	var buttons = {
 		ok: {
 			label: 'Close'
@@ -485,7 +582,7 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 		$("#status button.btn-success").click(function () {
 			if($(this).find(".badge").first().text() === '0'){
 				bootbox.alert({
-					title: 'Have Not Admitted',
+					title: 'No Admission',
 					message: message,
 					buttons: buttons
 				});
@@ -499,7 +596,7 @@ if(isset($admitted_status[array_key_first($admitted_status)]['reject'])){
 		$("#status button.btn-danger").click(function () {
 			if($(this).find(".badge").first().text() === '0'){
 				bootbox.alert({
-					message: 'Have Not Rejected',
+					message: 'No Rejection',
 					buttons: buttons
 				});
 				return;
