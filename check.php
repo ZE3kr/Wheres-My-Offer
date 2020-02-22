@@ -159,6 +159,9 @@ function check_update($result, $slug) {
 				$prev['shas'][$prev['sha']] = $prev['time'];
 			}
 		}
+		if(!isset($result['complete'])){
+			unset($prev['complete']);
+		}
 		$prev['sha'] = $result['sha'];
 		file_put_contents('/opt/admit/'.$slug, json_encode($prev));
 	}
