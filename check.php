@@ -155,7 +155,11 @@ function check_update($result, $slug) {
 			if( $prev['shas'][$result['sha']] < $prev['time'] ) {
 				$prev['time'] = $prev['shas'][$result['sha']];
 			}
+			if( !isset($prev['shas'][$prev['sha']])){
+				$prev['shas'][$prev['sha']] = $prev['time'];
+			}
 		}
+		$prev['sha'] = $result['sha'];
 		file_put_contents('/opt/admit/'.$slug, json_encode($prev));
 	}
 }
