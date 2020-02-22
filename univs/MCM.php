@@ -33,6 +33,15 @@ class MCM {
 		$data2 = substr(strstr($data2, '</td>', true), 25);
 		$data2 = trim(strip_tags($data2));
 
+		curl_setopt($curl, CURLOPT_URL,'https://www.comap.com/undergraduate/contests/mcm/contests/2020/results/');
+		curl_setopt($curl, CURLOPT_POST, 0);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, null);
+		curl_exec($curl);
+		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		if($http_status >= 400){
+			$http_status = 404;
+		}
+
 		if($data2 == '(unavailable)') {
 			unset($data2);
 		}
@@ -44,12 +53,12 @@ class MCM {
 			|| strstr($raw_data, 'final') || strstr($raw_data, 'outstand');
 
 		if (trim($data) != ''){
-			$return = ['sha' => md5($ori_data), 'data' => (isset($data2) && $data2 ? $data2 : $data),
+			$return = ['sha' => md5($ori_data).$http_status, 'data' => (isset($data2) && $data2 ? $data2 : $data),
 				'html' => trim('<ul><li><strong>Submission</strong>: '.$data.'</li><li><strong>Designation</strong>: '.(isset($data2) && $data2 ? $data2 : 'N/A').'</li></ul>'),
 				'other' => true, 'submitted' => true];
 			if($rej) {
 				$return['reject'] = true;
-			} else if ($ad) {
+			} else if ($ad || $http_status == 200) {
 				$return['admitted'] = true;
 			} else if( trim($data) != '(not yet received)' ){
 				$return['complete'] = true;
