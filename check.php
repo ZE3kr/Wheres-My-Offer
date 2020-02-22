@@ -9,20 +9,22 @@ require_once "univs/OSU.php";
 require_once "univs/WISC.php";
 require_once "univs/MCM.php";
 
-$ubc = new UBC();
-$ubc->setup([
+$UBC_cookie = [
 	'JSESSIONID' => 'XXXXXXXX-XXXXXXXXXXXXXXX'
-]);
+];
+$ubc = new UBC();
+$ubc->setup($UBC_cookie);
 $ubc->login();
 echo "\n\n\nUBC: \n";
 check_update($ubc->get_status(), 'UBC');
 
-$cmu = new CMU();
-$cmu->setup([
+$CMU_cookie = [
 	'JSESSIONID' => 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF-xx.xxxx',
 	'_shibsession_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-			=> '_ffffffffffffffffffffffffffffffff'
-]);
+	=> '_ffffffffffffffffffffffffffffffff'
+];
+$cmu = new CMU();
+$cmu->setup($CMU_cookie);
 $cmu->login();
 echo "\n\n\nCMU: \n";
 check_update( $cmu->get_status(), 'CMU');
@@ -72,15 +74,27 @@ check_update($wisc->get_status(), 'WISC');
 function check_update($result, $slug) {
 	$prev = file_get_contents('/opt/admit/'.$slug);
 	$prev = json_decode($prev, true);
+	global ${$slug.'_cookie'};
+
 	if(is_null($result) || !$result || !isset($result['sha'])){
 		unset($prev['cookie']);
+		$ttl = 300;
+		if($slug == 'UIUC' || $slug == 'MCM' || $slug == 'WISC' || $slug == 'OSU'){
+			$ttl = 900;
+		}
+		if(!isset($prev['notified']) && $prev['updated_time'] + $ttl < time()){
+			// Do something when there is a potential change or re login
+		}
 		file_put_contents('/opt/admit/'.$slug, json_encode($prev));
 		return;
 	}
+	unset($prev['notified']);
 	$result['data'] = trim($result['data']);
+
 	$trim = $result;
 	unset($trim['cookie']);
 	var_dump( $trim );
+
 	if(!$prev){
 		$result['time_u'] = $result['updated_time'] = $result['time'] = time();
 		file_put_contents('/opt/admit/'.$slug, json_encode($result));
@@ -90,25 +104,35 @@ function check_update($result, $slug) {
 		return;
 	}
 
-	if($result['sha'] != $prev['sha']) {
+	if( $result['sha'] != $prev['sha'] && !isset($prev['shas'][$result['sha']]) ) {
 		$append_data = $result['data'];
-		if(isset($result['admitted'])) {
-			$append_data = '录取！'.$result['data'];
+		if(!isset($result['other'])){
+			if(isset($result['admitted'])) {
+				$append_data = '录取！'.$result['data'];
+			}
+			if(isset($result['reject'])) {
+				$append_data = '拒绝！'.$result['data'];
+			}
 		}
-		if(isset($result['reject'])) {
-			$append_data = '拒绝！'.$result['data'];
-		}
+
 		$data = urlencode($append_data);
 
-		file_get_contents("https://maker.ifttt.com/trigger/admit/with/key/YOUR_KEY?value1={$slug}&value2={$result['data']}");
-		if (isset($result['admitted']) || isset($result['reject']) || $slug == 'UMich'){
+		if (isset($result['admitted']) || isset($result['reject']) || isset($result['waiting']) ){
 			// Special condition when admitted/rejected by a university.
 			// e.g. Trigger a phone call, or send a tweet.
 		}
+		// Do something when there is a change
+		// Change it to your own IFTTT key
+		file_get_contents("https://maker.ifttt.com/trigger/admit/with/key/YOUR_KEY?value1={$slug}&value2={$data}");
+
 
 		if(isset($prev['email'])){
 			$result['email'] = $prev['email'];
 		}
+		if(isset($prev['shas'])){
+			$result['shas'] = $prev['shas'];
+		}
+		$result['shas'][$prev['sha']] = $prev['time'];
 		$result['time_u'] = $result['time'] = $result['updated_time'] = time();
 		if( $result['data'] != $prev['data'] ){
 			$result['email'][$prev['time_u'] ?? $prev['time']] = $prev['data'];
@@ -126,6 +150,11 @@ function check_update($result, $slug) {
 		}
 		if ( isset($result['html']) ){
 			$prev['html'] = $result['html'];
+		}
+		if( isset($prev['shas'][$result['sha']]) ){
+			if( $prev['shas'][$result['sha']] < $prev['time'] ) {
+				$prev['time'] = $prev['shas'][$result['sha']];
+			}
 		}
 		file_put_contents('/opt/admit/'.$slug, json_encode($prev));
 	}
