@@ -10,7 +10,7 @@ Need these inputs:
 
 if ('edu' in input['subject']) or ('ubc.ca' in input['subject']) :
     payload = {'time': input['time'], 'from': input['from'], 'subject': input['subject'], 'body': input['body']}
-    r = requests.post('https://example.com/update_admit.php', data=payload, params=payload_param)
+    r = requests.post('https://example.com/admit_webhook.php', data=payload, params=payload_param)
     print(r.text)
 
     output = {'success': True}
