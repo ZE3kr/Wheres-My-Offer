@@ -45,7 +45,7 @@ if (strstr(strtolower($data.$_POST['body']), 'congrat')){
 } else if(strstr(strtolower($data.$_POST['body']), 'reject') || strstr(strtolower($data.$_POST['body']), 'sorry')) {
 	$prev['reject'] = true;
 	$appended_data = '拒绝！'.$data;
-} else if(strstr(strtolower($data), 'auto')) {
+} else if(strstr(strtolower($data), 'auto') || strstr(strtolower($data), 're:')) {
 	exit();
 }
 
