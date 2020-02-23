@@ -134,7 +134,7 @@ function check_update($result, $slug) {
 		}
 		$result['shas'][$prev['sha']] = $prev['time'];
 		$result['time_u'] = $result['time'] = $result['updated_time'] = time();
-		if( $result['data'] != $prev['data'] ){
+		if( $result['data'] != $prev['data'] && $prev['data'] != '' ){
 			$result['email'][$prev['time_u'] ?? $prev['time']] = $prev['data'];
 		} else {
 			$result['time_u'] = $prev['time_u'] ?? $prev['time'];
