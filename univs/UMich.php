@@ -52,7 +52,7 @@ class UMich {
 
 		curl_close($curl);
 
-		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
 		$cmplt = !strstr($raw_data, 'incomplete') && !strstr($raw_data, 'missing');
