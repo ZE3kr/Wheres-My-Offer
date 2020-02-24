@@ -44,7 +44,11 @@ class Purdue {
 
 			$data2 = substr(strstr($data2, '<td'), 3);
 			$data2 = substr(strstr($data2, '>'), 1);
-			$append = strstr(strip_tags(strstr($data2, '</td>', true)), ' for ', true);
+			$append = strip_tags(strstr($data2, '</td>', true));
+			$append2 = strstr($append, ' for ', true);
+			if($append2){
+				$append = $append2;
+			}
 
 			if(strstr($chk, 'received') || strstr($chk, 'completed')){
 				$received .= $append.'. ';
