@@ -19,8 +19,8 @@ class UNC {
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,'https://mycarolina.unc.edu/account/login');
 		curl_setopt($curl, CURLOPT_POST, 1);
-		$u = $this->user_name;
-		$p = $this->password;
+		$u = urlencode($this->user_name);
+		$p = urlencode($this->password);
 		curl_setopt($curl, CURLOPT_HEADER, 1);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
@@ -109,7 +109,7 @@ class UNC {
 			if($received){
 				$received = ' <span class="alert-success small">'.trim($received).'</span>';
 			}
-			$return['html'] = trim($data_html).$waiting.$received;
+			$return['html'] = trim($data_html.$waiting.$received);
 			
 			$return['submitted'] = true;
 			return $return;

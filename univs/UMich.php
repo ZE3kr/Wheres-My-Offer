@@ -19,8 +19,8 @@ class UMich {
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL,'https://enrollmentconnect.umich.edu/account/login');
 		curl_setopt($curl, CURLOPT_POST, 1);
-		$u = $this->user_name;
-		$p = $this->password;
+		$u = urlencode($this->user_name);
+		$p = urlencode($this->password);
 		curl_setopt($curl, CURLOPT_HEADER, 1);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
