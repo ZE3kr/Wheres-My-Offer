@@ -30,6 +30,7 @@ class Purdue {
 		$data = substr(strstr($data, '<body><h3>'), 10);
 		$ori_data = $data;
 		$data1 = strip_tags(strstr($data, '</h3>', true));
+		$data1 = str_replace('YOUR APPLICATION IS INCOMPLETE.', 'Incomplete', $data1);
 
 		$data2 = $ori_data;
 		$ori_data = strstr(strip_tags($ori_data), '<form action="/apply/statusHandler"', true);
@@ -49,10 +50,15 @@ class Purdue {
 			if($append2){
 				$append = $append2;
 			}
+			$append2 = strstr($append, ' (', true);
+			if($append2){
+				$append = $append2;
+			}
 
-			if(strstr($chk, 'received') || strstr($chk, 'completed')){
+			if(strstr($chk, 'received') || strstr($chk, 'completed')
+				|| strstr($chk, 'waived')){
 				$received .= $append.'. ';
-			} else {
+			} else if(!strstr($chk, 'optional')) {
 				$waiting .= $append.'. ';
 			}
 			for ($i = 0; $i < 3; $i++){

@@ -20,6 +20,8 @@ Supported Universities:
 + OSU
 + WISC
 + CMU
++ Purdue
++ WUSTL
 
 Supported Others:
 

@@ -1,5 +1,5 @@
 <?php
-class USC {
+class WUSTL {
 	private $cookie = [];
 	private $user_name = '';
 	private $password = '';
@@ -9,7 +9,7 @@ class USC {
 		$this->password = $p;
 	}
 	public function login(){
-		$prev = file_get_contents('/opt/admit/USC');
+		$prev = file_get_contents('/opt/admit/WUSTL');
 		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
 			$this->cookie = $prev['cookie'];
@@ -17,7 +17,7 @@ class USC {
 		}
 
 		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL,'https://applyto.usc.edu/account/login');
+		curl_setopt($curl, CURLOPT_URL,'https://pathway.wustl.edu/account/login');
 		curl_setopt($curl, CURLOPT_POST, 1);
 		$u = urlencode($this->user_name);
 		$p = urlencode($this->password);
@@ -37,7 +37,7 @@ class USC {
 
 	public function get_status(){
 		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL,'https://applyto.usc.edu/apply/status');
+		curl_setopt($curl, CURLOPT_URL,'https://pathway.wustl.edu/apply/status');
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Cookie: '.$this->cookie_str()));
 		curl_setopt($curl, CURLOPT_HEADER, 1);
 
@@ -45,29 +45,36 @@ class USC {
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		$data = curl_exec($curl);
 		$raw_data = strtolower(strip_tags($data));
-		$data = strstr($data, 'Logout</a></li>');
-		$data = substr($data, 15);
-		$ori_data = strstr($data, '<b>Withdraw Your Application</b>', true);
+		$data = strstr($data, '<h1>WashU Pathway for ');
+		$data = strstr($data, '<span style="font-size:14px;">');
+		$data = substr($data, 30);
+		$ori_data = strstr($data, '<h1>Your Admissions Officer</h1>', true);
 		$ori_data = preg_replace('/[0-9a-f-]{36}/', '', $ori_data);
-		$ori_data = strstr($ori_data, '<form action="', true);
-		$data = strstr($data, '<h3>Application Checklist</h3><v><html><head><title></title></head><body>');
-		$data = strstr(substr($data, 73), '&#xA0;', true);
-		$data_html = str_replace('Items marked as "Awaiting" are still necessary for review of your application.', '', $data);
-		
-		$data2 = $ori_data;
+		$data = strstr($data, '</span>', true);
+		$data = str_replace('Thank you for beginning an application for admission. Our records show that your Transfer application is not yet complete. ',
+			'Incomplete', $data);
+
+		$data2 = str_replace(
+			['<a href="https://admissions.wustl.edu/how-to-apply/english-testing-requirement/" target="_blank">',
+				'<a href="https://admissions.wustl.edu/common-questions/" target="_blank">', '</a>'], '',
+				$ori_data);
 		$ori_data = strip_tags($ori_data);
 		$received = '';
 		$waiting = '';
 		$data2 = strstr($data2, 'Status: ');
 		while($data2 != ''){
 			$chk = strtolower(strstr($data2, '"', true));
-			
+
 			$data2 = substr(strstr($data2, '</td>'), 5);
 			$data2 = substr(strstr($data2, '</td>'), 5);
-			
+
 			$data2 = substr(strstr($data2, '>'), 1);
 			$append = strstr($data2, '<', true);
 			$append2 = strstr($append, ' for ', true);
+			if($append2){
+				$append = $append2;
+			}
+			$append2 = strstr($append, ' (', true);
 			if($append2){
 				$append = $append2;
 			}
@@ -106,15 +113,15 @@ class USC {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
-			
+
 			if(trim($waiting)){
 				$waiting = ' <span class="alert-danger">'.trim($waiting).'</span>';
 			}
 			if($received){
 				$received = ' <span class="alert-success small">'.trim($received).'</span>';
 			}
-			$return['html'] = trim($data_html.$waiting.$received);
-			
+			$return['html'] = trim(strip_tags($data).$waiting.$received);
+
 			return $return;
 		}
 		return NULL;
