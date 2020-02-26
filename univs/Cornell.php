@@ -9,7 +9,7 @@ class Cornell {
 		$this->password = $p;
 	}
 	public function login(){
-		$prev = file_get_contents('/opt/admit/WUSTL');
+		$prev = file_get_contents('/opt/admit/Cornell');
 		$prev = json_decode($prev, true);
 		if (isset($prev['cookie'])){
 			$this->cookie = $prev['cookie'];
