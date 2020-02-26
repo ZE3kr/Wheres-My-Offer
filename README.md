@@ -22,6 +22,7 @@ Supported Universities:
 + CMU
 + Purdue
 + WUSTL
++ Cornell
 
 Supported Others:
 
