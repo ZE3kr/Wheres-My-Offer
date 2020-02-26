@@ -8,7 +8,7 @@ Need these inputs:
     body: {{bodyPreview}}
 '''
 
-if ('edu' in input['subject']) or ('ubc.ca' in input['subject']) :
+if ('edu' in input['from']) or ('ubc.ca' in input['from']) :
     payload = {'time': input['time'], 'from': input['from'], 'subject': input['subject'], 'body': input['body']}
     r = requests.post('https://example.com/admit_webhook.php', data=payload, params=payload_param)
     print(r.text)
