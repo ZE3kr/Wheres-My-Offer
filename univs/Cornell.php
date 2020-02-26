@@ -92,7 +92,7 @@ class Cornell {
 
 		curl_close($curl);
 
-		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept');
+		$ad = strstr($raw_data, 'congrat');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
 
