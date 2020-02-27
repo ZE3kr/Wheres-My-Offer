@@ -31,7 +31,7 @@ if(isset($translate[$from])) {
 $prev = file_get_contents('/opt/admit/'.$from);
 $prev = json_decode($prev, true);
 
-if(!$prev){
+if(!$prev || isset($prev['admitted']) || isset($prev['waiting']) || isset($prev['reject'])){
 	exit();
 }
 
