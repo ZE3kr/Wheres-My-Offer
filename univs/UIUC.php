@@ -59,8 +59,6 @@ class UIUC {
 		$data3 = strstr($data, '<h2>Missing Items</h2>');
 		$data3 = strstr($data3, '</ul>', true);
 		$data = substr(strstr($data, '</p>', true), 25);
-		curl_close($curl);
-
 		$data2 = strstr($data2, '<li>');
 		$received = '';
 		while($data2 != ''){
@@ -92,10 +90,27 @@ class UIUC {
 		if($missing){
 			$missing = substr($missing, 0, -2);
 		}
-
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 're an illini') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
+
+		if ($ad) {
+			include 'vendor/autoload.php';
+			$parser = new \Smalot\PdfParser\Parser();
+
+			curl_setopt($curl, CURLOPT_URL,'https://myillini.illinois.edu/Apply/Checklist/NOA?letterDesc=Transfer%20Evaluation');
+			$pdf_data = curl_exec($curl);
+			$pdf    = $parser->parseContent($pdf_data);
+
+			$text = $pdf->getText();
+			$earned = substr(strstr($text, 'EARNED: '), 8);
+			$earned = strstr($earned, ' HOURS', true);
+			$ori_data = $raw_data.$text;
+
+			$data = 'Admitted! Credit Transferred: '.$earned;
+		}
+
+		curl_close($curl);
 
 		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
