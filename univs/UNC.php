@@ -71,9 +71,9 @@ class UNC {
 			}
 			
 			if(strstr($chk, 'received') || strstr($chk, 'completed')){
-				$received .= $append.'. ';
+				$received .= $append.'; ';
 			} else {
-				$waiting .= $append.'. ';
+				$waiting .= $append.'; ';
 			}
 			$data2 = strstr($data2, 'Status: ');
 		}
@@ -88,7 +88,8 @@ class UNC {
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
+			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 
 		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),

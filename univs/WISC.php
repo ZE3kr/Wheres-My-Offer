@@ -79,7 +79,7 @@ class WISC {
 		$append = '';
 		$data = strstr($data, 'SCC_DRV_TASK_FL_SCC_TODO_SEL_PB$'.$i.'\');"');
 		while($data != ''){
-			$append .= strstr(substr(strstr($data, '>'), 1), '</a>', true).'. ';
+			$append .= strstr(substr(strstr($data, '>'), 1), '</a>', true).'; ';
 			$i++;
 			$data = strstr($data, 'SCC_DRV_TASK_FL_SCC_TODO_SEL_PB$'.$i.'\');"');
 		}
@@ -96,7 +96,8 @@ class WISC {
 		$r = strtolower(strip_tags($raw_data.$raw_data2));
 		$ad = strstr($r, 'congrat') || strstr($r, 'accept') || strstr($r, 'admit');
 		$wl = strstr($r, 'waiting list') || strstr($r, 'wait list');
-		$rej = strstr($r, 'reject') || strstr($r, 'denied') || strstr($r, 'sorry');
+		$rej = strstr($r, 'reject') || strstr($r, 'denied')
+			|| strstr($r, 'sorry') || strstr($r, 'regret');
 
 		if ($ad || $wl || $rej || trim($data2) != ''){
 			$return = ['sha' => md5($data).md5($data2), 'data' => trim(strip_tags($data2)),

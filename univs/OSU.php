@@ -13,7 +13,13 @@ class OSU {
 		$prev = json_decode($prev, true);
 
 		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, 'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
+		$ttl = 300;
+		//if(isset($prev['admitted'])){
+		//	$ttl = 900;
+		//	curl_setopt($curl, CURLOPT_URL, 'https://buckeyelink.osu.edu/launch-task/all/transfer-credit-report?taskReferrerCenterId=1120');
+		//} else {
+			curl_setopt($curl, CURLOPT_URL, 'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
+		//}
 		// curl_setopt($curl, CURLOPT_POST, 1);
 		$u = $this->user_name;
 		$p = $this->password;
@@ -23,7 +29,7 @@ class OSU {
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-		if ($prev['updated_time'] + 300 > time()){
+		if ($prev['updated_time'] + $ttl > time()){
 			curl_setopt($curl, CURLOPT_COOKIEJAR, '/opt/cookies/OSU');
 			curl_setopt($curl, CURLOPT_COOKIEFILE, '/opt/cookies/OSU');
 			return;
@@ -75,28 +81,48 @@ class OSU {
 		$data = strstr($data, '>');
 		$data = strstr(substr($data, 1), '<', true);
 
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit')
+			|| (trim(strip_tags($data)) == 'Acceptance');
+		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
+			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
+
 		curl_setopt($curl, CURLOPT_URL,'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
 		$data2 = curl_exec($curl);
 		$data2 = strstr($data2, 'id=\'win0divSRVCIND_TODOSGP$0\'');
 		$data2 = strstr($data2, '>');
 		$data2 = strstr(substr($data2, 1), '</table>', true);
-		$ori_data2 = $data2;
-		
+		$ori_data2 = strip_tags($data2);
+
 		$i = 0;
 		$append = '';
 		$data2 = strstr($data2, 'id=\'SRVC_LINK$'.$i.'\'');
 		while($data2 != ''){
-			$append .= strstr(substr(strstr($data2, '>'), 1), '</a>', true).'. ';
+			$append .= strstr(substr(strstr($data2, '>'), 1), '</a>', true).'; ';
 			$i++;
 			$data2 = strstr($data2, 'id=\'SRVC_LINK$'.$i.'\'');
 		}
 		$data2 = trim(substr($append, 0, -2));
 
-		curl_close($curl);
+		if($ad){
+			include 'vendor/autoload.php';
+			$parser = new \Smalot\PdfParser\Parser();
 
-		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
-		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
+			curl_setopt($curl, CURLOPT_URL,'https://degreeaudit.osu.edu/selfservice/audit/readpdf.pdf');
+
+			$pdf_data = curl_exec($curl);
+			$pdf    = $parser->parseContent($pdf_data);
+
+			$text = $pdf->getText();
+			var_dump($text);
+			$earned = substr(strstr($text, 'EARNED:'), 8);
+			$earned = strstr($earned, 'HOURS', true);
+			$ori_data2 .= $text;
+
+			$data = 'Credit: '.trim($earned).' Hours';
+		}
+
+		curl_close($curl);
 
 		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($data).md5($ori_data2), 'data' => trim(strip_tags($data))];

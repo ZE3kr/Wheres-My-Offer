@@ -33,7 +33,7 @@ class Purdue {
 		$data1 = str_replace('YOUR APPLICATION IS INCOMPLETE.', 'Incomplete', $data1);
 
 		$data2 = $ori_data;
-		$ori_data = strstr(strip_tags($ori_data), '<form action="/apply/statusHandler"', true);
+		$ori_data = strip_tags(strstr($ori_data, '<form action="/apply/statusHandler"', true));
 		$received = '';
 		$waiting = '';
 		$data2 = strstr($data2, '<th colspan="2">Status</th>');
@@ -57,9 +57,9 @@ class Purdue {
 
 			if(strstr($chk, 'received') || strstr($chk, 'completed')
 				|| strstr($chk, 'waived')){
-				$received .= $append.'. ';
+				$received .= $append.'; ';
 			} else if(!strstr($chk, 'optional')) {
-				$waiting .= $append.'. ';
+				$waiting .= $append.'; ';
 			}
 			for ($i = 0; $i < 3; $i++){
 				$data2 = substr(strstr($data2, '<td>'), 4);
@@ -90,14 +90,16 @@ class Purdue {
 			$closed_chk = substr(strstr($closed_chk, '<span class="sr-only">'), 22);
 			$closed_chk = strstr($closed_chk, '</span>', true);
 			if($closed_chk == 'closed' && strstr($name, 'Computer')) {
-				$list .= trim($name) . '. ';
+				$list .= trim($name) . '; ';
 			}
 			$closed = substr(strstr($closed, '<tr>'), 4);
 		}
 
 		$ad = strstr($raw_data, 'congrat');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
+			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
+		$cmplt = !$waiting || strstr(strtolower($data1), 'is complete');
 
 		if( $list ){
 			$list = substr($list, 0, -2);
@@ -112,8 +114,9 @@ class Purdue {
 				$return['waiting'] = true;
 			} else if($rej) {
 				$return['reject'] = true;
-			} else if (!$waiting) {
+			} else if ($cmplt) {
 				$return['complete'] = true;
+				$waiting = '';
 			}
 			$return['submitted'] = true;
 

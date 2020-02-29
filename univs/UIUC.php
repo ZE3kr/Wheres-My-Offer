@@ -68,7 +68,7 @@ class UIUC {
 			if($append2){
 				$append = $append2;
 			}
-			$received .= trim($append).'. ';
+			$received .= trim($append).'; ';
 			$data2 = strstr($data2, '<li>');
 		}
 		if($received){
@@ -84,15 +84,16 @@ class UIUC {
 			if($append2){
 				$append = $append2;
 			}
-			$missing .= trim($append).'. ';
+			$missing .= trim($append).'; ';
 			$data3 = strstr($data3, '<li>');
 		}
 		if($missing){
 			$missing = substr($missing, 0, -2);
 		}
-		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 're an illini') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
+		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
+			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 
 		if ($ad) {
 			include 'vendor/autoload.php';
@@ -107,7 +108,7 @@ class UIUC {
 			$earned = strstr($earned, ' HOURS', true);
 			$ori_data = $raw_data.$text;
 
-			$data = 'Admitted! Credit Transferred: '.$earned;
+			$data = 'Credit: '.trim($earned).' Hours';
 		}
 
 		curl_close($curl);

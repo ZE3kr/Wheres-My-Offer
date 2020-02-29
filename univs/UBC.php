@@ -51,7 +51,7 @@ class UBC {
 			$missing = strstr($missing, '<li>');
 		}
 		foreach($missing_list as $key => $_){
-			$missing .= $key.'. ';
+			$missing .= $key.'; ';
 		}
 		if($missing){
 			substr($missing, 0, -2);
@@ -81,9 +81,9 @@ class UBC {
 		}
 		foreach($received_list as $key => $i){
 			if($i > 1){
-				$received .= $key.' x'.$i.'. ';
+				$received .= $key.' x'.$i.'; ';
 			} else {
-				$received .= $key.'. ';
+				$received .= $key.'; ';
 			}
 		}
 		if($received){
@@ -97,7 +97,8 @@ class UBC {
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied') || strstr($raw_data, 'sorry');
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
+			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 
 		if (trim($ori_data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
@@ -108,7 +109,7 @@ class UBC {
 				$return['waiting'] = true;
 			} else if($rej) {
 				$return['reject'] = true;
-			} else if(!$missing){
+			} else if(!$missing && !strstr(strtolower($data), 'incomplete')){
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
