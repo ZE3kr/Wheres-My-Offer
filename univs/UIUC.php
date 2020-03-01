@@ -71,6 +71,37 @@ class UIUC {
 			$received .= trim($append).'; ';
 			$data2 = strstr($data2, '<li>');
 		}
+
+		$received_list = [];
+		curl_setopt($curl, CURLOPT_URL,'https://myillini.illinois.edu/Apply/Application/GetChangeFormStatuses');
+		$data_change = curl_exec($curl);
+		$ori_data .= strip_tags($data_change);
+		$data_change = strstr($data_change, '<li>');
+		while($data_change != ''){
+			$data_change = substr($data_change, 4);
+			$append = strstr($data_change, '</li>', true);
+			$append2 = strstr($append, '<br', true);
+			if($append2){
+				$append = $append2;
+			}
+			$append2 = strstr($append, ' - ', true);
+			if($append2){
+				$append = $append2;
+			}
+			if( !isset($received_list[trim($append)]) ){
+				$received_list[trim($append)] = 0;
+			}
+			$received_list[trim($append)]++;
+			$data_change = strstr($data_change, '<li>');
+		}
+		foreach ($received_list as $item => $i) {
+			if( $i == 1 ){
+				$received .= $item.'; ';
+			} else {
+				$received .= $item.' x'.$i.'; ';
+			}
+		}
+
 		if($received){
 			$received = substr($received, 0, -2);
 		}
