@@ -35,7 +35,6 @@ foreach ($admitted_status as $univ => $status) {
 	} else if (!isset($status['submitted'])) {
 		$sort = -$sort - 31104000;
 	}
-	var_dump($sort);
 	$admitted_status[$univ]['sort'] = $sort;
 }
 
