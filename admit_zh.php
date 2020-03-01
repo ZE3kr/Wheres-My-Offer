@@ -19,8 +19,26 @@ foreach ($scanned_directory as $slug) {
 	$admitted_status[$slug] = $content;
 }
 
+foreach ($admitted_status as $univ => $status) {
+	$sort = $status['time'];
+	if(isset($status['admitted'])) {
+		$sort += 31104000;
+	} else if (isset($status['waiting'])) {
+		$sort += 15552000;
+	} else if (isset($status['reject'])) {
+		$sort += 7776000;
+	} else if (isset($status['complete'])) {
+		$sort = time()-$sort;
+	} else if (!isset($status['submitted'])) {
+		$sort = -31104000;
+	} else if (!isset($status['other'])) {
+		$sort -= time();
+	}
+	$admitted_status[$univ]['sort'] = $sort;
+}
+
 uasort($admitted_status, function ($a, $b) {
-	return $a['time'] < $b['time'];
+	return $a['sort'] < $b['sort'];
 });
 
 $my_score = json_decode(file_get_contents('/opt/bjut/scores/18080108'), true);

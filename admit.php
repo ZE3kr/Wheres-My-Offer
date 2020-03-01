@@ -20,9 +20,6 @@ foreach ($scanned_directory as $slug) {
 }
 
 foreach ($admitted_status as $univ => $status) {
-	if(isset($status['other'])){
-		continue;
-	}
 	$sort = $status['time'];
 	if(isset($status['admitted'])) {
 		$sort += 31104000;
@@ -31,9 +28,11 @@ foreach ($admitted_status as $univ => $status) {
 	} else if (isset($status['reject'])) {
 		$sort += 7776000;
 	} else if (isset($status['complete'])) {
-		$sort = -$sort;
+		$sort = time()-$sort;
 	} else if (!isset($status['submitted'])) {
-		$sort = -$sort - 31104000;
+		$sort = -31104000;
+	} else if (!isset($status['other'])) {
+		$sort -= time();
 	}
 	$admitted_status[$univ]['sort'] = $sort;
 }
