@@ -137,7 +137,7 @@ class UIUC {
 			$text = $pdf->getText();
 			$earned = substr(strstr($text, 'EARNED: '), 8);
 			$earned = strstr($earned, ' HOURS', true);
-			$ori_data = $raw_data.$text;
+			$ori_data .= $text;
 
 			$data = 'Credit: '.trim($earned).' Hours';
 		}
