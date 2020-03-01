@@ -20,6 +20,9 @@ foreach ($scanned_directory as $slug) {
 }
 
 foreach ($admitted_status as $univ => $status) {
+	if(isset($status['other'])){
+		continue;
+	}
 	$sort = $status['time'];
 	if(isset($status['admitted'])) {
 		$sort += 31104000;
@@ -32,6 +35,7 @@ foreach ($admitted_status as $univ => $status) {
 	} else if (!isset($status['submitted'])) {
 		$sort = -$sort - 31104000;
 	}
+	var_dump($sort);
 	$admitted_status[$univ]['sort'] = $sort;
 }
 
