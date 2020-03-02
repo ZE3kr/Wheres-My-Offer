@@ -53,7 +53,7 @@ class Cornell {
 		$data = strip_tags($data);
 		$data = strstr($data, '.', true);
 
-		$data2 = $ori_data;
+		$data2 = $data3 = $ori_data;
 		$ori_data = strip_tags($ori_data);
 		$received = '';
 		$waiting = '';
@@ -86,6 +86,29 @@ class Cornell {
 		if($waiting){
 			$waiting = substr($waiting, 0, -2);
 		}
+		if(trim($received)){
+			$received_1 = true;
+		}
+
+		$data3 = strstr($data3, '<p>We have received the following documents from you:</p>');
+		$data3 = substr(strstr($data3, '<ul>'), 4);
+		$data3 = strstr($data3, '</ul>', true);
+		$data3 = strstr($data3, '<li>');
+		while($data3 != ''){
+			$data3 = substr($data3, 4);
+			$append = strstr($data3, '</li>', true);
+			$append2 = strstr($append, ' - ');
+			if($append2){
+				$append = substr($append2, 3);
+			}
+			$append2 = strstr($append, ': ', true);
+			if($append2){
+				$append = $append2;
+			}
+
+			$received .= $append.'; ';
+			$data3 = strstr($data3, '<li>');
+		}
 		if($received){
 			$received = substr($received, 0, -2);
 		}
@@ -106,7 +129,7 @@ class Cornell {
 				$return['waiting'] = true;
 			} else if($rej) {
 				$return['reject'] = true;
-			} else if (!trim($waiting) && trim($received)) {
+			} else if (!trim($waiting) && isset($received_1)) {
 				$return['complete'] = true;
 			}
 			$return['submitted'] = true;
