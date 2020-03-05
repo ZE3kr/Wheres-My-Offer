@@ -90,6 +90,7 @@ class Cornell {
 			$received_1 = true;
 		}
 
+		$received_list = [];
 		$data3 = strstr($data3, '<p>We have received the following documents from you:</p>');
 		$data3 = substr(strstr($data3, '<ul>'), 4);
 		$data3 = strstr($data3, '</ul>', true);
@@ -106,9 +107,20 @@ class Cornell {
 				$append = $append2;
 			}
 
-			$received .= $append.'; ';
+			if( !isset($received_list[trim($append)]) ){
+				$received_list[trim($append)] = 0;
+			}
+			$received_list[trim($append)]++;
 			$data3 = strstr($data3, '<li>');
 		}
+		foreach ($received_list as $item => $i) {
+			if( $i == 1 ){
+				$received .= $item.'; ';
+			} else {
+				$received .= $item.' x'.$i.'; ';
+			}
+		}
+
 		if($received){
 			$received = substr($received, 0, -2);
 		}

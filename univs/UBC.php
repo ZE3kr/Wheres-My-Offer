@@ -27,7 +27,7 @@ class UBC {
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl, CURLOPT_HEADER, 1);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-		$data = curl_exec($curl);
+		$data9 = $data = curl_exec($curl);
 		preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $data, $matches);
 		foreach($matches[1] as $item) {
 			parse_str($item, $cookie);
@@ -91,7 +91,17 @@ class UBC {
 		}
 		
 		$data = strstr(substr($data, 3), '</p>', true);
-		$data = str_replace('The following information is required before an evaluation can be completed:', 'Incomplete', $data);
+		if($data == ''){
+			$data = strstr($data9, '<td class="displayBoxFieldAlignTop">Status:</td>');
+			$data = strstr($data, '<td>');
+			$data = strstr(substr($data, 4), '</td>', true);
+		}
+		$data = str_replace(
+			[
+				'The following information is required before an evaluation can be completed:',
+				'Your file is ready for an evaluation! We ask for your patience as this may take some time. We will be in touch with you by email should we require additional information. Please continue to check the status 
+of your application on the Student Service Centre.'
+			], ['Incomplete', 'Complete'], $data);
 
 		curl_close($curl);
 

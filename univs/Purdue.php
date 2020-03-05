@@ -99,7 +99,8 @@ class Purdue {
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
-		$cmplt = !$waiting || strstr(strtolower($data1), 'is complete');
+		$cmplt = strstr(strtolower($data1), 'is complete');
+		$data1 = str_replace('YOUR APPLICATION IS COMPLETE', 'Complete', $data1);
 
 		if( $list ){
 			$list = substr($list, 0, -2);

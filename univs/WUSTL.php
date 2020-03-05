@@ -94,12 +94,16 @@ class WUSTL {
 			$received = substr($received, 0, -2);
 		}
 
+		$data = str_replace('Your Transfer application for admission is complete! Please check back for important updates.',
+			'Complete', $data);
+
 		curl_close($curl);
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
-		$rej = $rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
+		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
+		$cmplt = strstr($raw_data, 'is complete');
 
 		if ($ad || $wl || $rej || trim($data.$waiting) != '') {
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
@@ -110,8 +114,9 @@ class WUSTL {
 				$return['waiting'] = true;
 			} else if($rej) {
 				$return['reject'] = true;
-			} else if (!trim($waiting)) {
+			} else if ($cmplt) {
 				$return['complete'] = true;
+				$waiting = '';
 			}
 			$return['submitted'] = true;
 
