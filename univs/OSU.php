@@ -119,7 +119,7 @@ class OSU {
 			$earned = strstr($earned, 'HOURS', true);
 			$ori_data2 .= $text;
 
-			$data = 'Credit: '.trim($earned).' Hours';
+			$data .= '. Credit: '.trim($earned).' Hours';
 		}
 
 		curl_close($curl);

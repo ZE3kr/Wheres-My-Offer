@@ -139,7 +139,13 @@ class UIUC {
 			$earned = strstr($earned, ' HOURS', true);
 			$ori_data .= $text;
 
-			$data = 'Credit: '.trim($earned).' Hours';
+			$data = 'Admitted. Credit: '.trim($earned).' Hours';
+		}
+
+		if ($wl) {
+			$data = trim('Defer. '.$data);
+		} else if($rej) {
+			$data = trim('Rejected. '.$data);
 		}
 
 		curl_close($curl);

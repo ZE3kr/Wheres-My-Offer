@@ -52,8 +52,7 @@ class USC {
 		$ori_data = strstr($ori_data, '<form action="', true);
 		$data = strstr($data, '<h3>Application Checklist</h3><v><html><head><title></title></head><body>');
 		$data = strstr(substr($data, 73), '&#xA0;', true);
-		$data_html = str_replace('Items marked as "Awaiting" are still necessary for review of your application.', '', $data);
-		
+
 		$data2 = $ori_data;
 		$ori_data = strip_tags($ori_data);
 		$received = '';
@@ -94,6 +93,20 @@ class USC {
 		$rej = $rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 
+		if ($ad) {
+			$data = trim('Admitted. '.$data);
+		} else if ($wl) {
+			$data = trim('Defer. '.$data);
+		} else if($rej) {
+			$data = trim('Rejected. '.$data);
+		} else if (!$waiting) {
+			$data = trim('Complete. '.$data);
+		} else {
+			$data = trim('Incomplete. '.$data);
+		}
+
+		$data_html = str_replace('Items marked as "Awaiting" are still necessary for review of your application.', '', $data);
+
 		if ($ad || $wl || $rej || trim($data.$waiting) != '') {
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
@@ -104,12 +117,7 @@ class USC {
 			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!trim($waiting)) {
-				$return['data'] = trim('Complete. '.$return['data']);
-				$data_html .= ' Complete';
 				$return['complete'] = true;
-			} else {
-				$return['data'] = trim('Incomplete. '.$return['data']);
-				$data_html .= ' Incomplete';
 			}
 			$return['submitted'] = true;
 			

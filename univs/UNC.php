@@ -50,7 +50,6 @@ class UNC {
 		$ori_data = strstr($data, '<strong>Account Management</strong>', true);
 		$ori_data = preg_replace('/[0-9a-f-]{36}/', '', $ori_data);
 		$data = strstr(substr($data, 8), '</p>', true);
-		$data_html = str_replace('Thank you for applying to the University of North Carolina at Chapel Hill. We look forward to getting to know you.', '', $data);
 
 		$data2 = $ori_data;
 		$ori_data = strip_tags($ori_data);
@@ -91,6 +90,20 @@ class UNC {
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 
+		if ($ad) {
+			$data = trim('Admitted. '.$data);
+		} else if ($wl) {
+			$data = trim('Defer. '.$data);
+		} else if($rej) {
+			$data = trim('Rejected. '.$data);
+		} else if (!$waiting) {
+			$data = trim('Complete. '.$data);
+		} else {
+			$data = trim('Incomplete. '.$data);
+		}
+
+		$data_html = str_replace('Thank you for applying to the University of North Carolina at Chapel Hill. We look forward to getting to know you.', '', $data);
+
 		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
@@ -101,12 +114,7 @@ class UNC {
 			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!$waiting) {
-				$return['data'] = trim('Complete. '.$return['data']);
-				$data_html .= ' Complete';
 				$return['complete'] = true;
-			} else {
-				$return['data'] = trim('Incomplete. '.$return['data']);
-				$data_html .= ' Incomplete';
 			}
 			
 			if($waiting){

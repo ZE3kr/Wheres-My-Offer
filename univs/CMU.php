@@ -68,11 +68,23 @@ class CMU {
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 		$cmplt = !strstr($raw_data, 'incomplete');
 
+		if ($ad) {
+			$data = trim('Admitted. '.$data);
+		} else if ($wl) {
+			$data = trim('Defer. '.$data);
+		} else if($rej) {
+			$data = trim('Rejected. '.$data);
+		} else if ($cmplt) {
+			$data = trim('Complete. '.$data);
+		} else {
+			$data = trim('Incomplete. '.$data);
+		}
+
 		if ($ad || $wl || $rej || trim($data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($data2){
-				$return['html'] = '<span class="alert-success small">'.trim($data2).'</span>';
+				$return['html'] = trim(strstr($data, '.', true)).'<span class="alert-success small">'.$data2.'</span>';
 			}
 			if($ad) {
 				$return['admitted'] = true;
@@ -81,12 +93,7 @@ class CMU {
 			} else if($rej) {
 				$return['reject'] = true;
 			} else if ($cmplt) {
-				$return['data'] = trim('Complete. '.$return['data']);
-				$return['html'] = trim('Complete '.$return['html']);
 				$return['complete'] = true;
-			} else {
-				$return['data'] = trim('Incomplete. '.$return['data']);
-				$return['html'] = trim('Incomplete '.$return['html']);
 			}
 			$return['submitted'] = true;
 			return $return;
