@@ -142,7 +142,10 @@ class Cornell {
 			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!trim($waiting) && isset($received_1)) {
+				$data = 'Complete. '.$data;
 				$return['complete'] = true;
+			} else {
+				$data = 'Incomplete. '.$data;
 			}
 			$return['submitted'] = true;
 

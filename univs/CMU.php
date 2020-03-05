@@ -81,7 +81,12 @@ class CMU {
 			} else if($rej) {
 				$return['reject'] = true;
 			} else if ($cmplt) {
+				$return['data'] = trim('Complete. '.$return['data']);
+				$return['html'] = trim('Complete '.$return['html']);
 				$return['complete'] = true;
+			} else {
+				$return['data'] = trim('Incomplete. '.$return['data']);
+				$return['html'] = trim('Incomplete '.$return['html']);
 			}
 			$return['submitted'] = true;
 			return $return;

@@ -101,7 +101,12 @@ class UNC {
 			} else if($rej) {
 				$return['reject'] = true;
 			} else if (!$waiting) {
+				$return['data'] = trim('Complete. '.$return['data']);
+				$data_html .= ' Complete';
 				$return['complete'] = true;
+			} else {
+				$return['data'] = trim('Incomplete. '.$return['data']);
+				$data_html .= ' Incomplete';
 			}
 			
 			if($waiting){
