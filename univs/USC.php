@@ -107,7 +107,7 @@ class USC {
 
 		$data_html = str_replace('Items marked as "Awaiting" are still necessary for review of your application.', '', $data);
 
-		if ($ad || $wl || $rej || trim($data.$waiting) != '') {
+		if ($ad || $wl || $rej || trim($ori_data) != '') {
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($ad) {

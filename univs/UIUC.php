@@ -126,12 +126,13 @@ class UIUC {
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 
-		if ($ad) {
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+		curl_setopt($curl, CURLOPT_URL,'https://myillini.illinois.edu/Apply/Checklist/NOA?letterDesc=Transfer%20Evaluation');
+		$pdf_data = curl_exec($curl);
+		if ( trim(strip_tags($pdf_data)) && trim($pdf_data) != 'No Transfer Evaluation is available at this time.' ) {
 			include 'vendor/autoload.php';
 			$parser = new \Smalot\PdfParser\Parser();
-
-			curl_setopt($curl, CURLOPT_URL,'https://myillini.illinois.edu/Apply/Checklist/NOA?letterDesc=Transfer%20Evaluation');
-			$pdf_data = curl_exec($curl);
+		
 			$pdf    = $parser->parseContent($pdf_data);
 
 			$text = $pdf->getText();
@@ -139,7 +140,10 @@ class UIUC {
 			$earned = strstr($earned, ' HOURS', true);
 			$ori_data .= $text;
 
-			$data = 'Admitted. Credit: '.trim($earned).' Hours';
+			$data = 'Credit: '.trim($earned).' Hours';
+			if($ad){
+				$data = 'Admitted. '.$data;
+			}
 		}
 
 		if ($wl) {

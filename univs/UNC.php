@@ -104,7 +104,7 @@ class UNC {
 
 		$data_html = str_replace('Thank you for applying to the University of North Carolina at Chapel Hill. We look forward to getting to know you.', '', $data);
 
-		if ($ad || $wl || $rej || trim($data) != ''){
+		if ($ad || $wl || $rej || trim($ori_data) != ''){
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($ad) {

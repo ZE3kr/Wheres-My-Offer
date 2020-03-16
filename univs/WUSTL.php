@@ -105,7 +105,7 @@ class WUSTL {
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 		$cmplt = strstr($raw_data, 'is complete');
 
-		if ($ad || $wl || $rej || trim($data.$waiting) != '') {
+		if ($ad || $wl || $rej || trim($ori_data) != '') {
 			$return = ['sha' => md5($ori_data), 'data' => trim(strip_tags($data)),
 				'cookie' => $this->cookie];
 			if($ad) {
