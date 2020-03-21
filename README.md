@@ -23,6 +23,7 @@ Supported Universities:
 + Purdue
 + WUSTL
 + Cornell
++ JHU
 
 Supported Others:
 
