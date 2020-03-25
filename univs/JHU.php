@@ -57,6 +57,7 @@ class JHU {
 			'You&#x2019;ll receive an email closer to the decision release date with more information. '
 		], '', $data);
 		$data_html = str_replace('All admissions files are checked for completion; we will be in touch via email if any items are missing from your application.', 'Complete', $data_html);
+		$data = str_replace('&#x2019;', '’', $data);
 
 		curl_close($curl);
 
