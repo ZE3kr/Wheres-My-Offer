@@ -63,7 +63,8 @@ class CMU {
 		}
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept') || strstr($raw_data, 'admit');
-		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
+		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list')
+			|| strstr($raw_data, 'decision notification letter') || strstr($raw_data, 'view decision letter');
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')
 			|| strstr($raw_data, 'sorry') || strstr($raw_data, 'regret');
 		$cmplt = !strstr($raw_data, 'incomplete');
@@ -71,7 +72,7 @@ class CMU {
 		if ($ad) {
 			$data = trim('Admitted. '.$data);
 		} else if ($wl) {
-			$data = trim('Defer. '.$data);
+			$data = trim('Unknown Decision. '.$data);
 		} else if($rej) {
 			$data = trim('Rejected. '.$data);
 		} else if ($cmplt) {

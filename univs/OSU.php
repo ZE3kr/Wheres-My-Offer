@@ -104,7 +104,7 @@ class OSU {
 		}
 		$data2 = trim(substr($append, 0, -2));
 
-		if($ad){
+		if(false && $ad){
 			include 'vendor/autoload.php';
 			$parser = new \Smalot\PdfParser\Parser();
 

@@ -65,7 +65,8 @@ class Cornell {
 			$data2 = substr(strstr($data2, '</td>'), 5);
 
 			$data2 = substr(strstr($data2, '>'), 1);
-			$append = strstr($data2, '<', true);
+			$append = strstr($data2, '</td>', true);
+			$append = strip_tags($append);
 			$append2 = strstr($append, ' for ', true);
 			if($append2){
 				$append = $append2;

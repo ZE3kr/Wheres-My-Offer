@@ -99,9 +99,14 @@ class UBC {
 		$data = str_replace(
 			[
 				'The following information is required before an evaluation can be completed:',
-				'Your file is ready for an evaluation! We ask for your patience as this may take some time. We will be in touch with you by email should we require additional information. Please continue to check the status 
-of your application on the Student Service Centre.'
-			], ['Incomplete', 'Complete'], $data);
+				'Your file is ready for an evaluation!'
+			], ['Incomplete', 'Evaluation'], $data);
+		$data = str_replace("\n", '', $data);
+		$data = str_replace(
+			[
+				'We ask for your patience as this may take some time. We will be in touch with you by email should we require additional information.',
+				'Please continue to check the status of your application on the Student Service Centre.'
+			], '', $data);
 
 		curl_close($curl);
 

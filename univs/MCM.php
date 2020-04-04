@@ -58,8 +58,10 @@ class MCM {
 				'other' => true, 'submitted' => true];
 			if($rej) {
 				$return['reject'] = true;
-			} else if ($ad || $http_status == 200) {
+			} else if ($ad) {
 				$return['admitted'] = true;
+			} else if ($http_status >= 200 && $http_status < 400) {
+				$return['waiting'] = true;
 			} else if( trim($data) != '(not yet received)' ){
 				$return['complete'] = true;
 			}
