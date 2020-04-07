@@ -59,6 +59,9 @@ class JHU {
 		$data_html = str_replace('All admissions files are checked for completion; we will be in touch via email if any items are missing from your application.', 'Complete', $data_html);
 		$data = str_replace('&#x2019;', '’', $data);
 
+		curl_setopt($curl, CURLOPT_URL,'https://admissions.jhu.edu/apply/update');
+		$data_updated = curl_exec($curl);
+		$raw_data .= strtolower(strip_tags($data_updated));
 		curl_close($curl);
 
 		$ad = strstr($raw_data, 'congrat');

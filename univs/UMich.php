@@ -50,6 +50,9 @@ class UMich {
 		$ori_data = strip_tags($data);
 		$data = substr(strstr($data, '</button>', true), 37);
 
+		curl_setopt($curl, CURLOPT_URL,'https://enrollmentconnect.umich.edu/apply/update');
+		$data_updated = curl_exec($curl);
+		$raw_data .= strtolower(strip_tags($data_updated));
 		curl_close($curl);
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept');

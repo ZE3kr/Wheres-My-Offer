@@ -72,7 +72,6 @@ class Purdue {
 			$received = substr($received, 0, -2);
 		}
 
-
 		curl_setopt($this->curl, CURLOPT_URL,'https://www.admissions.purdue.edu/apply/closedprograms.php');
 		curl_setopt($this->curl, CURLOPT_POSTFIELDS, null);
 		$closed = curl_exec($this->curl);
@@ -95,6 +94,11 @@ class Purdue {
 			$closed = substr(strstr($closed, '<tr>'), 4);
 		}
 
+		curl_setopt($curl, CURLOPT_URL,'https://apply.purdue.edu/apply/update');
+		$data_updated = curl_exec($curl);
+		$raw_data .= strtolower(strip_tags($data_updated));
+		curl_close($curl);
+		
 		$ad = strstr($raw_data, 'congrat');
 		$wl = strstr($raw_data, 'waiting list') || strstr($raw_data, 'wait list');
 		$rej = strstr($raw_data, 'reject') || strstr($raw_data, 'denied')

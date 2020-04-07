@@ -14,13 +14,7 @@ class OSU {
 
 		$curl = curl_init();
 		$ttl = 300;
-		//if(isset($prev['admitted'])){
-		//	$ttl = 900;
-		//	curl_setopt($curl, CURLOPT_URL, 'https://buckeyelink.osu.edu/launch-task/all/transfer-credit-report?taskReferrerCenterId=1120');
-		//} else {
-			curl_setopt($curl, CURLOPT_URL, 'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
-		//}
-		// curl_setopt($curl, CURLOPT_POST, 1);
+		curl_setopt($curl, CURLOPT_URL, 'https://sis.erp.ohio-state.edu/psc/scsosucs/EMPLOYEE/BUCK/c/CC_PORTFOLIO.SS_CC_TODOS.GBL');
 		$u = $this->user_name;
 		$p = $this->password;
 		curl_setopt($curl, CURLOPT_HEADER, 1);
@@ -103,24 +97,6 @@ class OSU {
 			$data2 = strstr($data2, 'id=\'SRVC_LINK$'.$i.'\'');
 		}
 		$data2 = trim(substr($append, 0, -2));
-
-		if(false && $ad){
-			include 'vendor/autoload.php';
-			$parser = new \Smalot\PdfParser\Parser();
-
-			curl_setopt($curl, CURLOPT_URL,'https://degreeaudit.osu.edu/selfservice/audit/readpdf.pdf');
-
-			$pdf_data = curl_exec($curl);
-			$pdf    = $parser->parseContent($pdf_data);
-
-			$text = $pdf->getText();
-			var_dump($text);
-			$earned = substr(strstr($text, 'EARNED:'), 8);
-			$earned = strstr($earned, 'HOURS', true);
-			$ori_data2 .= $text;
-
-			$data .= '. Credit: '.trim($earned).' Hours';
-		}
 
 		curl_close($curl);
 

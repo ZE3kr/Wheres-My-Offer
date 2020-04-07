@@ -86,6 +86,9 @@ class USC {
 			$received = substr($received, 0, -2);
 		}
 
+		curl_setopt($curl, CURLOPT_URL,'https://applyto.usc.edu/apply/update');
+		$data_updated = curl_exec($curl);
+		$raw_data .= strtolower(strip_tags($data_updated));
 		curl_close($curl);
 
 		$ad = strstr($raw_data, 'congrat') || strstr($raw_data, 'accept');
